@@ -9,6 +9,19 @@ export default function Navigation() {
   const { user, userRole } = useAuth()
   const router = useRouter()
 
+  const getDashboardLink = () => {
+    switch (userRole) {
+      case 'admin':
+        return '/admin'
+      case 'trainer':
+        return '/trainer'
+      case 'broker':
+        return '/broker'
+      default:
+        return '/'
+    }
+  }
+
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut()
     if (!error) {
@@ -22,19 +35,27 @@ export default function Navigation() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-xl font-bold">
+              <Link href={getDashboardLink()} className="text-xl font-bold">
                 Dashboard
               </Link>
             </div>
             
             <div className="hidden md:ml-6 md:flex md:space-x-8">
-              <Link href="/" className="inline-flex items-center px-1 pt-1 text-gray-900">
+              <Link href={getDashboardLink()} className="inline-flex items-center px-1 pt-1 text-gray-900">
                 Home
               </Link>
               {userRole === 'admin' && (
-                <Link href="/admin" className="inline-flex items-center px-1 pt-1 text-gray-900">
-                  Admin
-                </Link>
+                <>
+                  <Link href="/admin" className="inline-flex items-center px-1 pt-1 text-gray-900">
+                    Dashboard
+                  </Link>
+                  <Link href="/admin/staff" className="inline-flex items-center px-1 pt-1 text-gray-900">
+                    Staff
+                  </Link>
+                  <Link href="/users" className="inline-flex items-center px-1 pt-1 text-gray-900">
+                    Users
+                  </Link>
+                </>
               )}
             </div>
           </div>

@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { getAllUsers, createUser } from '@/lib/database-examples'
+import RoleGuard from '@/components/RoleGuard'
 
 export default function UsersPage() {
     const [users, setUsers] = useState([])
@@ -28,24 +29,13 @@ export default function UsersPage() {
     }
     
     return (
-        <div>
-            <h1>Users</h1>
-            
-            {/* Add User Form */}
-            <form onSubmit={handleSubmit}>
-                <input name="name" placeholder="Name" />
-                <input name="email" placeholder="Email" />
-                <button type="submit">Add User</button>
-            </form>
-            
-            {/* Display Users */}
-            <ul>
-                {users.map((user: any) => (
-                    <li key={user.id}>
-                        {user.name} ({user.email})
-                    </li>
-                ))}
-            </ul>
-        </div>
+        <RoleGuard allowedRoles={['admin', 'trainer']}>
+            <div className="max-w-7xl mx-auto px-4 py-6">
+                <h1 className="text-2xl font-bold mb-6">Users Management</h1>
+                <div className="bg-white shadow rounded-lg p-6">
+                    <p>User management area. Admin and trainers can access this.</p>
+                </div>
+            </div>
+        </RoleGuard>
     )
 } 
