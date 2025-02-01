@@ -26,7 +26,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         supabase.auth.getSession().then(({ data: { session } }) => {
             setUser(session?.user ?? null)
             if (session?.user) {
-                fetchUserRole(session.user.id)
+                // Get role from user metadata
+                setUserRole(session.user.user_metadata.role as UserRole)
             }
             setLoading(false)
         })
@@ -35,7 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
             setUser(session?.user ?? null)
             if (session?.user) {
-                await fetchUserRole(session.user.id)
+                // Get role from user metadata
+                setUserRole(session.user.user_metadata.role as UserRole)
             } else {
                 setUserRole(null)
             }
@@ -44,18 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         return () => subscription.unsubscribe()
     }, [])
-
-    const fetchUserRole = async (userId: string) => {
-        const { data, error } = await supabase
-            .from('user_profiles')
-            .select('role')
-            .eq('id', userId)
-            .single()
-
-        if (data) {
-            setUserRole(data.role as UserRole)
-        }
-    }
 
     return (
         <AuthContext.Provider value={{ user, userRole, loading }}>

@@ -22,8 +22,21 @@ export default function Login() {
                 return
             }
 
-            // Login successful
-            router.push('/dashboard') // Redirect to dashboard or home page
+            // Get role from user metadata and redirect accordingly
+            const role = data.user?.user_metadata.role
+            switch (role) {
+                case 'admin':
+                    router.push('/admin')
+                    break
+                case 'trainer':
+                    router.push('/trainer')
+                    break
+                case 'broker':
+                    router.push('/broker')
+                    break
+                default:
+                    router.push('/')
+            }
         } catch (error) {
             console.error('Error:', error)
             setError('An error occurred during login')

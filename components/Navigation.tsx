@@ -46,13 +46,22 @@ export default function Navigation() {
               </Link>
               {userRole === 'admin' && (
                 <>
-                  <Link href="/admin" className="inline-flex items-center px-1 pt-1 text-gray-900">
+                  <Link href="/admin" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
                     Dashboard
                   </Link>
-                  <Link href="/admin/staff" className="inline-flex items-center px-1 pt-1 text-gray-900">
+                  <Link href="/admin/staff" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
                     Staff
                   </Link>
-                  <Link href="/users" className="inline-flex items-center px-1 pt-1 text-gray-900">
+                  <Link href="/admin/trainers" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
+                    Trainers
+                  </Link>
+                  <Link href="/admin/brokers" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
+                    Brokers
+                  </Link>
+                  <Link href="/admin/carousel" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
+                    Carousel
+                  </Link>
+                  <Link href="/users" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
                     Users
                   </Link>
                 </>

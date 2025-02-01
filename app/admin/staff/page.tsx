@@ -24,14 +24,22 @@ export default function StaffManagement() {
 
     const loadStaff = async () => {
         try {
-            const { data, error } = await supabase
-                .from('user_profiles')
-                .select('*')
-                .in('role', ['trainer', 'broker'])
-                .order('created_at', { ascending: false })
-
+            const { data: { users }, error } = await supabase.auth.admin.listUsers()
+            
             if (error) throw error
-            setStaff(data || [])
+
+            // Filter users based on role and transform data
+            const staffMembers = users
+                .filter(user => ['trainer', 'broker'].includes(user.user_metadata.role))
+                .map(user => ({
+                    id: user.id,
+                    email: user.email,
+                    role: user.user_metadata.role as UserRole,
+                    created_at: user.created_at,
+                    status: user.user_metadata.status || 'active'
+                }))
+
+            setStaff(staffMembers)
         } catch (error) {
             console.error('Error loading staff:', error)
         } finally {
@@ -41,10 +49,9 @@ export default function StaffManagement() {
 
     const handleStatusChange = async (userId: string, newStatus: 'active' | 'inactive') => {
         try {
-            const { error } = await supabase
-                .from('user_profiles')
-                .update({ status: newStatus })
-                .eq('id', userId)
+            const { error } = await supabase.auth.admin.updateUserById(userId, {
+                user_metadata: { status: newStatus }
+            })
 
             if (error) throw error
             

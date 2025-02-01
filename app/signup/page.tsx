@@ -22,7 +22,7 @@ export default function SignUp() {
                 options: {
                     data: {
                         username,
-                        role
+                        role: role // Store role in user metadata
                     }
                 }
             })
