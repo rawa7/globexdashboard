@@ -23,9 +23,12 @@ export default function Navigation() {
   }
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (!error) {
-      router.push('/login')
+    try {
+        await supabase.auth.signOut()
+        router.push('/login')
+        router.refresh()
+    } catch (error) {
+        console.error('Error during sign out:', error)
     }
   }
 
@@ -49,20 +52,40 @@ export default function Navigation() {
                   <Link href="/admin" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
                     Dashboard
                   </Link>
-                  <Link href="/admin/staff" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
-                    Staff
-                  </Link>
                   <Link href="/admin/trainers" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
                     Trainers
                   </Link>
                   <Link href="/admin/brokers" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
                     Brokers
                   </Link>
+                  <Link href="/admin/signals" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
+                    Signals
+                  </Link>
                   <Link href="/admin/carousel" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
                     Carousel
                   </Link>
-                  <Link href="/users" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
-                    Users
+                </>
+              )}
+              {userRole === 'broker' && (
+                <>
+                  <Link href="/broker" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
+                    Dashboard
+                  </Link>
+                  <Link href="/broker/media" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
+                    Media
+                  </Link>
+                </>
+              )}
+              {userRole === 'trainer' && (
+                <>
+                  <Link href="/trainer" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
+                    Dashboard
+                  </Link>
+                  <Link href="/trainer/courses" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
+                    Courses
+                  </Link>
+                  <Link href="/trainer/profile" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
+                    Profile
                   </Link>
                 </>
               )}

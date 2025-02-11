@@ -8,7 +8,7 @@ type CarouselItem = {
     title: {
         en: string
         ar: string
-        ku: string
+        ckb: string
     }
     image_url: string
     link: string
@@ -23,7 +23,7 @@ export default function CarouselManagement() {
     const [loading, setLoading] = useState(true)
     const [isEditing, setIsEditing] = useState(false)
     const [currentItem, setCurrentItem] = useState<Partial<CarouselItem>>({
-        title: { en: '', ar: '', ku: '' },
+        title: { en: '', ar: '', ckb: '' },
         is_external: false,
         active: true,
         display_order: 0
@@ -92,7 +92,7 @@ export default function CarouselManagement() {
             await loadItems()
             setIsEditing(false)
             setCurrentItem({
-                title: { en: '', ar: '', ku: '' },
+                title: { en: '', ar: '', ckb: '' },
                 is_external: false,
                 active: true,
                 display_order: 0
@@ -170,7 +170,7 @@ export default function CarouselManagement() {
                         onClick={() => {
                             setIsEditing(false)
                             setCurrentItem({
-                                title: { en: '', ar: '', ku: '' },
+                                title: { en: '', ar: '', ckb: '' },
                                 is_external: false,
                                 active: true,
                                 display_order: items.length
@@ -222,10 +222,10 @@ export default function CarouselManagement() {
                                         <label className="block text-sm font-medium text-gray-700">Title (Kurdish)</label>
                                         <input
                                             type="text"
-                                            value={currentItem.title?.ku || ''}
+                                            value={currentItem.title?.ckb || ''}
                                             onChange={(e) => setCurrentItem({
                                                 ...currentItem,
-                                                title: { ...currentItem.title, ku: e.target.value }
+                                                title: { ...currentItem.title, ckb: e.target.value }
                                             })}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                             required
@@ -321,7 +321,7 @@ export default function CarouselManagement() {
                                     onClick={() => {
                                         setIsEditing(false)
                                         setCurrentItem({
-                                            title: { en: '', ar: '', ku: '' },
+                                            title: { en: '', ar: '', ckb: '' },
                                             is_external: false,
                                             active: true,
                                             display_order: 0
@@ -374,7 +374,7 @@ export default function CarouselManagement() {
                                             <div className="text-sm text-gray-900">
                                                 EN: {item.title.en}<br />
                                                 AR: {item.title.ar}<br />
-                                                KU: {item.title.ku}
+                                                ckb: {item.title.ckb}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">

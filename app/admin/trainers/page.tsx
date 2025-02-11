@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import RoleGuard from '@/components/RoleGuard'
 import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 type Trainer = {
     id: string
@@ -9,16 +10,18 @@ type Trainer = {
     experience_years: number
     bio: string
     image_url: string
-    rating: number
     position: string
     website_url: string
     twitter_url: string
     facebook_url: string
     linkedin_url: string
     youtube_url: string
+    rating: number
     user_id: string
     created_at: string
     updated_at: string
+    email?: string // For form only
+    password?: string // For form only
 }
 
 export default function TrainerManagement() {
@@ -63,36 +66,64 @@ export default function TrainerManagement() {
                         name: currentTrainer.name,
                         experience_years: currentTrainer.experience_years,
                         bio: currentTrainer.bio,
+                        image_url: currentTrainer.image_url,
                         position: currentTrainer.position,
                         website_url: currentTrainer.website_url,
+                        twitter_url: currentTrainer.twitter_url,
+                        facebook_url: currentTrainer.facebook_url,
+                        linkedin_url: currentTrainer.linkedin_url,
+                        youtube_url: currentTrainer.youtube_url,
                         updated_at: new Date().toISOString()
                     })
                     .eq('id', currentTrainer.id)
 
                 if (error) throw error
             } else {
-                // Create new trainer
-                const { error } = await supabase
-                    .from('trainers')
-                    .insert([{
-                        name: currentTrainer.name,
-                        experience_years: currentTrainer.experience_years,
-                        bio: currentTrainer.bio,
-                        position: currentTrainer.position,
-                        website_url: currentTrainer.website_url,
-                        created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    }])
+                // Create auth user first using admin client
+                const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+                    email: currentTrainer.email as string,
+                    password: currentTrainer.password as string,
+                    email_confirm: true,
+                    user_metadata: {
+                        role: 'trainer'
+                    }
+                })
 
-                if (error) throw error
+                if (authError) throw authError
+
+                if (authData.user) {
+                    // Then create trainer record
+                    const { error: trainerError } = await supabase
+                        .from('trainers')
+                        .insert([{
+                            id: authData.user.id,
+                            name: currentTrainer.name,
+                            experience_years: currentTrainer.experience_years,
+                            bio: currentTrainer.bio,
+                            image_url: currentTrainer.image_url,
+                            position: currentTrainer.position,
+                            website_url: currentTrainer.website_url,
+                            twitter_url: currentTrainer.twitter_url,
+                            facebook_url: currentTrainer.facebook_url,
+                            linkedin_url: currentTrainer.linkedin_url,
+                            youtube_url: currentTrainer.youtube_url,
+                            rating: 0,
+                            user_id: authData.user.id,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        }])
+
+                    if (trainerError) {
+                        // If trainer creation fails, delete the auth user
+                        await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
+                        throw trainerError
+                    }
+                }
             }
 
-            // Refresh trainers list and reset form
             await loadTrainers()
             setIsEditing(false)
             setCurrentTrainer({})
-            
-            // Add success message (optional)
             alert(isEditing ? 'Trainer updated successfully!' : 'New trainer added successfully!')
         } catch (error) {
             console.error('Error saving trainer:', error)
@@ -117,8 +148,23 @@ export default function TrainerManagement() {
     }
 
     const handleAddNew = () => {
-        setCurrentTrainer({}) // Reset the form
-        setIsEditing(false)  // Set to creation mode
+        setCurrentTrainer({
+            name: '',
+            experience_years: 0,
+            bio: '',
+            image_url: '',
+            position: '',
+            website_url: '',
+            twitter_url: '',
+            facebook_url: '',
+            linkedin_url: '',
+            youtube_url: '',
+            rating: 0,
+            // These will be used for auth but not stored in trainers table
+            email: '',
+            password: ''
+        })
+        setIsEditing(false)
     }
 
     return (
@@ -186,6 +232,66 @@ export default function TrainerManagement() {
                                         type="url"
                                         value={currentTrainer.website_url || ''}
                                         onChange={(e) => setCurrentTrainer({...currentTrainer, website_url: e.target.value})}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    />
+                                </div>
+                                {!isEditing && (
+                                    <>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Email</label>
+                                            <input
+                                                type="email"
+                                                value={currentTrainer.email || ''}
+                                                onChange={(e) => setCurrentTrainer({...currentTrainer, email: e.target.value})}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                required={!isEditing}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Password</label>
+                                            <input
+                                                type="password"
+                                                value={currentTrainer.password || ''}
+                                                onChange={(e) => setCurrentTrainer({...currentTrainer, password: e.target.value})}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                required={!isEditing}
+                                            />
+                                        </div>
+                                    </>
+                                )}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Twitter URL</label>
+                                    <input
+                                        type="url"
+                                        value={currentTrainer.twitter_url || ''}
+                                        onChange={(e) => setCurrentTrainer({...currentTrainer, twitter_url: e.target.value})}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Facebook URL</label>
+                                    <input
+                                        type="url"
+                                        value={currentTrainer.facebook_url || ''}
+                                        onChange={(e) => setCurrentTrainer({...currentTrainer, facebook_url: e.target.value})}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">LinkedIn URL</label>
+                                    <input
+                                        type="url"
+                                        value={currentTrainer.linkedin_url || ''}
+                                        onChange={(e) => setCurrentTrainer({...currentTrainer, linkedin_url: e.target.value})}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">YouTube URL</label>
+                                    <input
+                                        type="url"
+                                        value={currentTrainer.youtube_url || ''}
+                                        onChange={(e) => setCurrentTrainer({...currentTrainer, youtube_url: e.target.value})}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                     />
                                 </div>

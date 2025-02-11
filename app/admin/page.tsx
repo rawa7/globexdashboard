@@ -7,10 +7,6 @@ export default function AdminDashboard() {
     const { user } = useAuth()
     const router = useRouter()
 
-    const handleManageStaff = () => {
-        router.push('/admin/staff')
-    }
-
     return (
         <RoleGuard allowedRoles={['admin']}>
             <div className="max-w-7xl mx-auto px-4 py-6">
@@ -41,12 +37,6 @@ export default function AdminDashboard() {
                     <div className="bg-white shadow rounded-lg p-6">
                         <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
                         <div className="space-y-2">
-                            <button 
-                                onClick={handleManageStaff}
-                                className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                            >
-                                Manage Staff
-                            </button>
                             <button className="w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
                                 System Settings
                             </button>

@@ -11,20 +11,20 @@ export default function RoleGuard({
     children: React.ReactNode
     allowedRoles: UserRole[]
 }) {
-    const { user, userRole, loading } = useAuth()
+    const { user, userRole, session, loading } = useAuth()
     const router = useRouter()
 
     useEffect(() => {
-        if (!loading && (!user || !userRole || !allowedRoles.includes(userRole))) {
+        if (!loading && (!session || !user || !userRole || !allowedRoles.includes(userRole))) {
             router.push('/login')
         }
-    }, [loading, user, userRole, allowedRoles, router])
+    }, [loading, session, user, userRole, allowedRoles, router])
 
     if (loading) {
         return <div>Loading...</div>
     }
 
-    if (!user || !userRole || !allowedRoles.includes(userRole)) {
+    if (!session || !user || !userRole || !allowedRoles.includes(userRole)) {
         return null
     }
 
