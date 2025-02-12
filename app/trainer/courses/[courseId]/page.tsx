@@ -410,7 +410,7 @@ export default function CourseSectionManagement() {
                         <div className="text-center py-4">Loading sections...</div>
                     ) : sections.length === 0 ? (
                         <div className="text-center py-4 text-gray-500">
-                            No sections found. Click "Add Section" to get started.
+                            No sections found. Click Add Section to get started.
                         </div>
                     ) : (
                         <div className="bg-white shadow rounded-lg">
