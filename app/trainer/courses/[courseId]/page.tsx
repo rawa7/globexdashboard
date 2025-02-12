@@ -44,7 +44,7 @@ export default function CourseSectionManagement() {
 
     const [sections, setSections] = useState<CourseSection[]>([])
     const [videos, setVideos] = useState<CourseVideo[]>([])
-    // @ts-ignore
+    // @ts-expect-error
     const [loading, setLoading] = useState(false)
     const [showSectionForm, setShowSectionForm] = useState(false)
     const [showVideoForm, setShowVideoForm] = useState(false)
