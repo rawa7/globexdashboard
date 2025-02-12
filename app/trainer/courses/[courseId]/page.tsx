@@ -44,7 +44,8 @@ export default function CourseSectionManagement() {
 
     const [sections, setSections] = useState<CourseSection[]>([])
     const [videos, setVideos] = useState<CourseVideo[]>([])
-    const [loading, setLoading] = useState(true)
+    // @ts-ignore
+    const [loading, setLoading] = useState(false)
     const [showSectionForm, setShowSectionForm] = useState(false)
     const [showVideoForm, setShowVideoForm] = useState(false)
     const [currentSection, setCurrentSection] = useState<Partial<CourseSection>>({

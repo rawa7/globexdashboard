@@ -8,21 +8,22 @@ import Link from 'next/link'
 // Add CourseType type
 type CourseType = 'free' | 'premium' | 'regular';
 
+// Add at the top with other type definitions
+type MultilingualField = {
+    en: string;
+    ar: string;
+    ckb: string;
+}
+
+// Update Course type
 type Course = {
     id: string
     trainer_id: string
-    title: {
-        en: string
-        ar: string
-        ckb: string
-    }
-    description: {
-        en: string
-        ar: string
-        ckb: string
-    }
+    title: MultilingualField
+    description: MultilingualField
     trailer_url?: string
-    course_type: CourseType // Make this required with specific types
+    thumbnail_url?: string // Add this missing field
+    course_type: CourseType
     order_index?: number
     price_iqd?: number
     original_price_iqd?: number
@@ -44,8 +45,8 @@ export default function CourseManagement() {
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
     const [currentCourse, setCurrentCourse] = useState<Partial<Course>>({
-        title: { en: '', ar: '', ckb: '' },
-        description: { en: '', ar: '', ckb: '' },
+        title: { en: '', ar: '', ckb: '' } as MultilingualField,
+        description: { en: '', ar: '', ckb: '' } as MultilingualField,
         learning_points: { en: [], ar: [], ckb: [] },
         price_iqd: 0,
         original_price_iqd: 0,
@@ -129,8 +130,8 @@ export default function CourseManagement() {
 
     const resetForm = () => {
         setCurrentCourse({
-            title: { en: '', ar: '', ckb: '' },
-            description: { en: '', ar: '', ckb: '' },
+            title: { en: '', ar: '', ckb: '' } as MultilingualField,
+            description: { en: '', ar: '', ckb: '' } as MultilingualField,
             learning_points: { en: [], ar: [], ckb: [] },
             price_iqd: 0,
             original_price_iqd: 0,
@@ -161,7 +162,7 @@ export default function CourseManagement() {
                 throw new Error('Please upload an image file for the thumbnail')
             }
 
-            const { error: uploadError, data } = await supabase.storage
+            const { error: uploadError } = await supabase.storage
                 .from('course-content')
                 .upload(filePath, file)
 
@@ -386,7 +387,7 @@ export default function CourseManagement() {
                     <div className="text-center py-4">Loading...</div>
                 ) : courses.length === 0 ? (
                     <div className="text-center py-4 text-gray-500">
-                        No courses found. Click "Add New Course" to get started.
+                        No courses found. Click &quot;Add New Course&quot; to get started.
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
