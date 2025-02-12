@@ -134,7 +134,7 @@ export default function CarouselManagement() {
             const filePath = `${fileName}`
 
             // Upload image to Supabase Storage
-            const { error: uploadError, data } = await supabase.storage
+            const { error: uploadError } = await supabase.storage
                 .from('carousel')  // Your bucket name
                 .upload(filePath, file)
 

@@ -1,12 +1,7 @@
 'use client'
 import RoleGuard from '@/components/RoleGuard'
-import { useAuth } from '@/lib/AuthContext'
-import { useRouter } from 'next/navigation'
 
 export default function AdminDashboard() {
-    const { user } = useAuth()
-    const router = useRouter()
-
     return (
         <RoleGuard allowedRoles={['admin']}>
             <div className="max-w-7xl mx-auto px-4 py-6">

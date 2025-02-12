@@ -102,6 +102,31 @@ export default function QuizManagement() {
         }
     }
 
+    const handleOptionChange = (language: 'en' | 'ar' | 'ckb', index: number, value: string) => {
+        const newOptions = {
+            en: [...(currentQuestion.options?.en || ['', '', '', ''])],
+            ar: [...(currentQuestion.options?.ar || ['', '', '', ''])],
+            ckb: [...(currentQuestion.options?.ckb || ['', '', '', ''])]
+        }
+        newOptions[language][index] = value
+        setCurrentQuestion({
+            ...currentQuestion,
+            options: newOptions
+        })
+    }
+
+    const handleQuestionChange = (language: 'en' | 'ar' | 'ckb', value: string) => {
+        setCurrentQuestion({
+            ...currentQuestion,
+            question: {
+                en: currentQuestion.question?.en || '',
+                ar: currentQuestion.question?.ar || '',
+                ckb: currentQuestion.question?.ckb || '',
+                [language]: value
+            }
+        })
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
@@ -202,10 +227,7 @@ export default function QuizManagement() {
                                     <input
                                         type="text"
                                         value={currentQuestion.question?.en || ''}
-                                        onChange={(e) => setCurrentQuestion({
-                                            ...currentQuestion,
-                                            question: { ...currentQuestion.question, en: e.target.value }
-                                        })}
+                                        onChange={(e) => handleQuestionChange('en', e.target.value)}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         required
                                     />
@@ -215,10 +237,7 @@ export default function QuizManagement() {
                                     <input
                                         type="text"
                                         value={currentQuestion.question?.ar || ''}
-                                        onChange={(e) => setCurrentQuestion({
-                                            ...currentQuestion,
-                                            question: { ...currentQuestion.question, ar: e.target.value }
-                                        })}
+                                        onChange={(e) => handleQuestionChange('ar', e.target.value)}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         required
                                         dir="rtl"
@@ -229,10 +248,7 @@ export default function QuizManagement() {
                                     <input
                                         type="text"
                                         value={currentQuestion.question?.ckb || ''}
-                                        onChange={(e) => setCurrentQuestion({
-                                            ...currentQuestion,
-                                            question: { ...currentQuestion.question, ckb: e.target.value }
-                                        })}
+                                        onChange={(e) => handleQuestionChange('ckb', e.target.value)}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         required
                                         dir="rtl"
@@ -251,14 +267,7 @@ export default function QuizManagement() {
                                         <input
                                             type="text"
                                             value={currentQuestion.options?.en[index] || ''}
-                                            onChange={(e) => {
-                                                const newOptions = { ...currentQuestion.options }
-                                                newOptions.en[index] = e.target.value
-                                                setCurrentQuestion({
-                                                    ...currentQuestion,
-                                                    options: newOptions
-                                                })
-                                            }}
+                                            onChange={(e) => handleOptionChange('en', index, e.target.value)}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                             required
                                         />
@@ -270,14 +279,7 @@ export default function QuizManagement() {
                                         <input
                                             type="text"
                                             value={currentQuestion.options?.ar[index] || ''}
-                                            onChange={(e) => {
-                                                const newOptions = { ...currentQuestion.options }
-                                                newOptions.ar[index] = e.target.value
-                                                setCurrentQuestion({
-                                                    ...currentQuestion,
-                                                    options: newOptions
-                                                })
-                                            }}
+                                            onChange={(e) => handleOptionChange('ar', index, e.target.value)}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                             required
                                             dir="rtl"
@@ -290,14 +292,7 @@ export default function QuizManagement() {
                                         <input
                                             type="text"
                                             value={currentQuestion.options?.ckb[index] || ''}
-                                            onChange={(e) => {
-                                                const newOptions = { ...currentQuestion.options }
-                                                newOptions.ckb[index] = e.target.value
-                                                setCurrentQuestion({
-                                                    ...currentQuestion,
-                                                    options: newOptions
-                                                })
-                                            }}
+                                            onChange={(e) => handleOptionChange('ckb', index, e.target.value)}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                             required
                                             dir="rtl"
@@ -473,6 +468,8 @@ export default function QuizManagement() {
                         ))}
                     </div>
                 )}
+
+                <p className="text-sm text-gray-500">Don&apos;t forget to add &quot;correct&quot; answers for each question</p>
             </div>
         </RoleGuard>
     )
