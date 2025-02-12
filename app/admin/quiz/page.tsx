@@ -404,7 +404,7 @@ export default function QuizManagement() {
                     <div className="text-center py-4">Loading...</div>
                 ) : questions.length === 0 ? (
                     <div className='text-center py-4 text-gray-500'>
-                        No questions found. Click "Add Question" to get started.
+                        No questions found. Click Add Question to get started.
                     </div>
                 ) : (
                     <div className="bg-white shadow rounded-lg divide-y">

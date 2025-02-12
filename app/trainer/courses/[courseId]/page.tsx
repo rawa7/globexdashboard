@@ -5,14 +5,16 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/AuthContext'
 import { useParams } from 'next/navigation'
 
+type MultilingualField = {
+    en: string;
+    ar: string;
+    ckb: string;
+}
+
 type CourseSection = {
     id: string
     course_id: string
-    title: {
-        en: string
-        ar: string
-        ckb: string
-    }
+    title: MultilingualField
     order_index: number
     created_at: string
 }
@@ -20,16 +22,8 @@ type CourseSection = {
 type CourseVideo = {
     id: string
     section_id: string
-    title: {
-        en: string
-        ar: string
-        ckb: string
-    }
-    description: {
-        en: string
-        ar: string
-        ckb: string
-    }
+    title: MultilingualField
+    description: MultilingualField
     video_url?: string
     thumbnail_url?: string
     duration_seconds: number
@@ -44,17 +38,16 @@ export default function CourseSectionManagement() {
 
     const [sections, setSections] = useState<CourseSection[]>([])
     const [videos, setVideos] = useState<CourseVideo[]>([])
-    // @ts-expect-error
-    const [loading, setLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const [showSectionForm, setShowSectionForm] = useState(false)
     const [showVideoForm, setShowVideoForm] = useState(false)
     const [currentSection, setCurrentSection] = useState<Partial<CourseSection>>({
-        title: { en: '', ar: '', ckb: '' },
+        title: { en: '', ar: '', ckb: '' } as MultilingualField,
         order_index: 0
     })
     const [currentVideo, setCurrentVideo] = useState<Partial<CourseVideo>>({
-        title: { en: '', ar: '', ckb: '' },
-        description: { en: '', ar: '', ckb: '' },
+        title: { en: '', ar: '', ckb: '' } as MultilingualField,
+        description: { en: '', ar: '', ckb: '' } as MultilingualField,
         order_index: 0,
         duration_seconds: 0,
         video_url: '',
@@ -79,6 +72,7 @@ export default function CourseSectionManagement() {
 
     const loadSections = async () => {
         try {
+            setIsLoading(true)
             const { data, error } = await supabase
                 .from('course_sections')
                 .select('*')
@@ -94,7 +88,7 @@ export default function CourseSectionManagement() {
             console.error('Error loading sections:', error)
             alert('Error loading sections. Please try again.')
         } finally {
-            setLoading(false)
+            setIsLoading(false)
         }
     }
 
@@ -196,7 +190,7 @@ export default function CourseSectionManagement() {
             await loadSections()
             setShowSectionForm(false)
             setCurrentSection({
-                title: { en: '', ar: '', ckb: '' },
+                title: { en: '', ar: '', ckb: '' } as MultilingualField,
                 order_index: 0
             })
             setIsEditingSection(false)
@@ -208,7 +202,7 @@ export default function CourseSectionManagement() {
 
     const resetSectionForm = () => {
         setCurrentSection({
-            title: { en: '', ar: '', ckb: '' },
+            title: { en: '', ar: '', ckb: '' } as MultilingualField,
             order_index: 0
         })
         setIsEditingSection(false)
@@ -217,8 +211,8 @@ export default function CourseSectionManagement() {
 
     const resetVideoForm = () => {
         setCurrentVideo({
-            title: { en: '', ar: '', ckb: '' },
-            description: { en: '', ar: '', ckb: '' },
+            title: { en: '', ar: '', ckb: '' } as MultilingualField,
+            description: { en: '', ar: '', ckb: '' } as MultilingualField,
             order_index: videos.length,
             duration_seconds: 0,
             video_url: '',
@@ -412,42 +406,50 @@ export default function CourseSectionManagement() {
                     )}
 
                     {/* Sections List */}
-                    <div className="bg-white shadow rounded-lg">
-                        {sections.map((section) => (
-                            <div 
-                                key={section.id}
-                                className={`p-4 border-b last:border-b-0 ${selectedSectionId === section.id ? 'bg-blue-50' : ''}`}
-                            >
-                                <div className="flex justify-between items-center">
-                                    <button
-                                        onClick={() => setSelectedSectionId(section.id)}
-                                        className="text-left flex-grow"
-                                    >
-                                        <h3 className="font-medium">{section.title.en}</h3>
-                                        <p className="text-sm text-gray-500">{section.title.ar}</p>
-                                    </button>
-                                    <div className="flex space-x-2">
+                    {isLoading ? (
+                        <div className="text-center py-4">Loading sections...</div>
+                    ) : sections.length === 0 ? (
+                        <div className="text-center py-4 text-gray-500">
+                            No sections found. Click "Add Section" to get started.
+                        </div>
+                    ) : (
+                        <div className="bg-white shadow rounded-lg">
+                            {sections.map((section) => (
+                                <div 
+                                    key={section.id}
+                                    className={`p-4 border-b last:border-b-0 ${selectedSectionId === section.id ? 'bg-blue-50' : ''}`}
+                                >
+                                    <div className="flex justify-between items-center">
                                         <button
-                                            onClick={() => {
-                                                setCurrentSection(section)
-                                                setIsEditingSection(true)
-                                                setShowSectionForm(true)
-                                            }}
-                                            className="text-blue-600 hover:text-blue-900"
+                                            onClick={() => setSelectedSectionId(section.id)}
+                                            className="text-left flex-grow"
                                         >
-                                            Edit
+                                            <h3 className="font-medium">{section.title.en}</h3>
+                                            <p className="text-sm text-gray-500">{section.title.ar}</p>
                                         </button>
-                                        <button
-                                            onClick={() => handleDeleteSection(section.id)}
-                                            className="text-red-600 hover:text-red-900"
-                                        >
-                                            Delete
-                                        </button>
+                                        <div className="flex space-x-2">
+                                            <button
+                                                onClick={() => {
+                                                    setCurrentSection(section)
+                                                    setIsEditingSection(true)
+                                                    setShowSectionForm(true)
+                                                }}
+                                                className="text-blue-600 hover:text-blue-900"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteSection(section.id)}
+                                                className="text-red-600 hover:text-red-900"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Videos Management */}
