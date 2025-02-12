@@ -298,7 +298,7 @@ export default function BrokerManagement() {
                                     <label className="block text-sm font-medium text-gray-700">Logo</label>
                                     <div className="mt-1 flex items-center space-x-4">
                                         {currentBroker.logo_url && (
-                                            <img
+                                            <image
                                                 src={currentBroker.logo_url}
                                                 alt="Logo Preview"
                                                 className="h-20 w-20 object-cover rounded"
@@ -373,7 +373,7 @@ export default function BrokerManagement() {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center">
                                                 {broker.logo_url && (
-                                                    <img
+                                                    <image
                                                         className="h-10 w-10 rounded-full mr-3"
                                                         src={broker.logo_url}
                                                         alt={broker.name}
