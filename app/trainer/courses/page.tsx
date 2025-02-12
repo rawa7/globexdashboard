@@ -5,6 +5,9 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/AuthContext'
 import Link from 'next/link'
 
+// Add CourseType type
+type CourseType = 'free' | 'premium' | 'regular';
+
 type Course = {
     id: string
     trainer_id: string
@@ -18,10 +21,22 @@ type Course = {
         ar: string
         ckb: string
     }
-    trailer_url: string
-    thumbnail_url: string
+    trailer_url?: string
+    course_type: CourseType // Make this required with specific types
+    order_index?: number
+    price_iqd?: number
+    original_price_iqd?: number
+    learning_points?: {
+        en: string[]
+        ar: string[]
+        ckb: string[]
+    }
+    total_sections?: number
     created_at: string
 }
+
+// Add course type options for the form
+const courseTypeOptions: CourseType[] = ['free', 'premium', 'regular'];
 
 export default function CourseManagement() {
     const { user } = useAuth()
@@ -31,8 +46,11 @@ export default function CourseManagement() {
     const [currentCourse, setCurrentCourse] = useState<Partial<Course>>({
         title: { en: '', ar: '', ckb: '' },
         description: { en: '', ar: '', ckb: '' },
-        trailer_url: '',
-        thumbnail_url: ''
+        learning_points: { en: [], ar: [], ckb: [] },
+        price_iqd: 0,
+        original_price_iqd: 0,
+        order_index: 0,
+        course_type: 'regular' as CourseType
     })
     const [isEditing, setIsEditing] = useState(false)
     const [uploading, setUploading] = useState(false)
@@ -70,6 +88,12 @@ export default function CourseManagement() {
                     .update({
                         title: currentCourse.title,
                         description: currentCourse.description,
+                        trailer_url: currentCourse.trailer_url || null,
+                        course_type: currentCourse.course_type || 'regular',
+                        order_index: currentCourse.order_index || 0,
+                        price_iqd: currentCourse.price_iqd || 0,
+                        original_price_iqd: currentCourse.original_price_iqd || 0,
+                        learning_points: currentCourse.learning_points || { en: [], ar: [], ckb: [] }
                     })
                     .eq('id', currentCourse.id)
 
@@ -81,6 +105,13 @@ export default function CourseManagement() {
                         trainer_id: user?.id,
                         title: currentCourse.title,
                         description: currentCourse.description,
+                        trailer_url: currentCourse.trailer_url || null,
+                        course_type: currentCourse.course_type || 'regular',
+                        order_index: currentCourse.order_index || 0,
+                        price_iqd: currentCourse.price_iqd || 0,
+                        original_price_iqd: currentCourse.original_price_iqd || 0,
+                        learning_points: currentCourse.learning_points || { en: [], ar: [], ckb: [] },
+                        total_sections: 0,
                         created_at: new Date().toISOString()
                     }])
 
@@ -100,8 +131,11 @@ export default function CourseManagement() {
         setCurrentCourse({
             title: { en: '', ar: '', ckb: '' },
             description: { en: '', ar: '', ckb: '' },
-            trailer_url: '',
-            thumbnail_url: ''
+            learning_points: { en: [], ar: [], ckb: [] },
+            price_iqd: 0,
+            original_price_iqd: 0,
+            order_index: 0,
+            course_type: 'regular' as CourseType
         })
         setIsEditing(false)
         setShowForm(false)
@@ -312,6 +346,25 @@ export default function CourseManagement() {
                                             className="mt-2 max-h-40 rounded"
                                         />
                                     )}
+                                </div>
+
+                                <div className="md:col-span-3">
+                                    <label className="block text-sm font-medium text-gray-700">Course Type</label>
+                                    <select
+                                        value={currentCourse.course_type || 'regular'}
+                                        onChange={(e) => setCurrentCourse({
+                                            ...currentCourse,
+                                            course_type: e.target.value as CourseType
+                                        })}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                        required
+                                    >
+                                        {courseTypeOptions.map(type => (
+                                            <option key={type} value={type}>
+                                                {type.charAt(0).toUpperCase() + type.slice(1)}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
 

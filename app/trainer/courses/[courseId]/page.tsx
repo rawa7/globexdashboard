@@ -11,6 +11,7 @@ type CourseSection = {
     title: {
         en: string
         ar: string
+        ckb: string
     }
     order_index: number
     created_at: string
@@ -22,13 +23,15 @@ type CourseVideo = {
     title: {
         en: string
         ar: string
+        ckb: string
     }
     description: {
         en: string
         ar: string
+        ckb: string
     }
-    video_url: string
-    thumbnail_url: string
+    video_url?: string
+    thumbnail_url?: string
     duration_seconds: number
     order_index: number
     created_at: string
@@ -45,14 +48,16 @@ export default function CourseSectionManagement() {
     const [showSectionForm, setShowSectionForm] = useState(false)
     const [showVideoForm, setShowVideoForm] = useState(false)
     const [currentSection, setCurrentSection] = useState<Partial<CourseSection>>({
-        title: { en: '', ar: '' },
+        title: { en: '', ar: '', ckb: '' },
         order_index: 0
     })
     const [currentVideo, setCurrentVideo] = useState<Partial<CourseVideo>>({
-        title: { en: '', ar: '' },
-        description: { en: '', ar: '' },
+        title: { en: '', ar: '', ckb: '' },
+        description: { en: '', ar: '', ckb: '' },
         order_index: 0,
-        duration_seconds: 0
+        duration_seconds: 0,
+        video_url: '',
+        thumbnail_url: ''
     })
     const [isEditingSection, setIsEditingSection] = useState(false)
     const [isEditingVideo, setIsEditingVideo] = useState(false)
@@ -159,10 +164,51 @@ export default function CourseSectionManagement() {
         }
     }
 
+    const handleSectionSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        try {
+            if (isEditingSection && currentSection.id) {
+                // Update existing section
+                const { error } = await supabase
+                    .from('course_sections')
+                    .update({
+                        title: currentSection.title,
+                        order_index: currentSection.order_index
+                    })
+                    .eq('id', currentSection.id)
+
+                if (error) throw error
+            } else {
+                // Create new section
+                const { error } = await supabase
+                    .from('course_sections')
+                    .insert([{
+                        course_id: courseId,
+                        title: currentSection.title,
+                        order_index: currentSection.order_index || 0,
+                        created_at: new Date().toISOString()
+                    }])
+
+                if (error) throw error
+            }
+
+            await loadSections()
+            setShowSectionForm(false)
+            setCurrentSection({
+                title: { en: '', ar: '', ckb: '' },
+                order_index: 0
+            })
+            setIsEditingSection(false)
+        } catch (error) {
+            console.error('Error saving section:', error)
+            alert('Error saving section. Please try again.')
+        }
+    }
+
     const resetSectionForm = () => {
         setCurrentSection({
-            title: { en: '', ar: '' },
-            order_index: sections.length
+            title: { en: '', ar: '', ckb: '' },
+            order_index: 0
         })
         setIsEditingSection(false)
         setShowSectionForm(false)
@@ -170,13 +216,117 @@ export default function CourseSectionManagement() {
 
     const resetVideoForm = () => {
         setCurrentVideo({
-            title: { en: '', ar: '' },
-            description: { en: '', ar: '' },
+            title: { en: '', ar: '', ckb: '' },
+            description: { en: '', ar: '', ckb: '' },
             order_index: videos.length,
-            duration_seconds: 0
+            duration_seconds: 0,
+            video_url: '',
+            thumbnail_url: ''
         })
         setIsEditingVideo(false)
         setShowVideoForm(false)
+    }
+
+    const handleVideoSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        try {
+            if (!selectedSectionId) {
+                throw new Error('Please select a section first')
+            }
+
+            if (isEditingVideo && currentVideo.id) {
+                // Update existing video
+                const { error } = await supabase
+                    .from('course_videos')
+                    .update({
+                        title: currentVideo.title,
+                        description: currentVideo.description,
+                        video_url: currentVideo.video_url,
+                        thumbnail_url: currentVideo.thumbnail_url,
+                        duration_seconds: currentVideo.duration_seconds,
+                        order_index: currentVideo.order_index
+                    })
+                    .eq('id', currentVideo.id)
+
+                if (error) throw error
+            } else {
+                // Create new video
+                const { error } = await supabase
+                    .from('course_videos')
+                    .insert([{
+                        section_id: selectedSectionId,
+                        title: currentVideo.title,
+                        description: currentVideo.description,
+                        video_url: currentVideo.video_url,
+                        thumbnail_url: currentVideo.thumbnail_url,
+                        duration_seconds: currentVideo.duration_seconds || 0,
+                        order_index: currentVideo.order_index || videos.length,
+                        created_at: new Date().toISOString()
+                    }])
+
+                if (error) throw error
+            }
+
+            await loadVideos(selectedSectionId)
+            resetVideoForm()
+            alert(isEditingVideo ? 'Video updated successfully!' : 'Video created successfully!')
+        } catch (error) {
+            console.error('Error saving video:', error)
+            alert('Error saving video. Please try again.')
+        }
+    }
+
+    // Update the handleFileUpload function to handle video files
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'video' | 'thumbnail') => {
+        try {
+            setUploading(true)
+            
+            if (!e.target.files || e.target.files.length === 0) {
+                throw new Error('You must select a file to upload.')
+            }
+
+            const file = e.target.files[0]
+            const fileExt = file.name.split('.').pop()
+            const fileName = `${Date.now()}.${fileExt}`
+            const filePath = `${user?.id}/${type}/${fileName}`
+
+            // Validate file type
+            if (type === 'video' && !file.type.startsWith('video/')) {
+                throw new Error('Please upload a video file')
+            }
+            if (type === 'thumbnail' && !file.type.startsWith('image/')) {
+                throw new Error('Please upload an image file for the thumbnail')
+            }
+
+            const { error: uploadError } = await supabase.storage
+                .from('course-content')
+                .upload(filePath, file)
+
+            if (uploadError) throw uploadError
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('course-content')
+                .getPublicUrl(filePath)
+
+            // Update form state based on file type
+            if (type === 'video') {
+                setCurrentVideo({
+                    ...currentVideo,
+                    video_url: publicUrl
+                })
+            } else {
+                setCurrentVideo({
+                    ...currentVideo,
+                    thumbnail_url: publicUrl
+                })
+            }
+
+        } catch (error) {
+            console.error('Error uploading file:', error)
+            alert(error instanceof Error ? error.message : 'Error uploading file')
+        } finally {
+            setUploading(false)
+        }
     }
 
     return (
@@ -198,7 +348,7 @@ export default function CourseSectionManagement() {
                     {showSectionForm && (
                         <div className="mb-6 bg-white shadow rounded-lg p-4">
                             <form onSubmit={handleSectionSubmit} className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700">Title (English)</label>
                                         <input
@@ -226,8 +376,22 @@ export default function CourseSectionManagement() {
                                             dir="rtl"
                                         />
                                     </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Title (Kurdish)</label>
+                                        <input
+                                            type="text"
+                                            value={currentSection.title?.ckb || ''}
+                                            onChange={(e) => setCurrentSection({
+                                                ...currentSection,
+                                                title: { ...currentSection.title, ckb: e.target.value }
+                                            })}
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                            required
+                                            dir="rtl"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="flex justify-end space-x-2">
+                                <div className="flex justify-end space-x-3">
                                     <button
                                         type="button"
                                         onClick={resetSectionForm}
@@ -302,7 +466,7 @@ export default function CourseSectionManagement() {
                         {showVideoForm && (
                             <div className="mb-6 bg-white shadow rounded-lg p-4">
                                 <form onSubmit={handleVideoSubmit} className="space-y-4">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700">Title (English)</label>
                                             <input
@@ -330,8 +494,22 @@ export default function CourseSectionManagement() {
                                                 dir="rtl"
                                             />
                                         </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Title (Kurdish)</label>
+                                            <input
+                                                type="text"
+                                                value={currentVideo.title?.ckb || ''}
+                                                onChange={(e) => setCurrentVideo({
+                                                    ...currentVideo,
+                                                    title: { ...currentVideo.title, ckb: e.target.value }
+                                                })}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                required
+                                                dir="rtl"
+                                            />
+                                        </div>
 
-                                        <div className="md:col-span-2">
+                                        <div>
                                             <label className="block text-sm font-medium text-gray-700">Description (English)</label>
                                             <textarea
                                                 value={currentVideo.description?.en || ''}
@@ -339,13 +517,12 @@ export default function CourseSectionManagement() {
                                                     ...currentVideo,
                                                     description: { ...currentVideo.description, en: e.target.value }
                                                 })}
-                                                rows={3}
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                rows={3}
                                                 required
                                             />
                                         </div>
-
-                                        <div className="md:col-span-2">
+                                        <div>
                                             <label className="block text-sm font-medium text-gray-700">Description (Arabic)</label>
                                             <textarea
                                                 value={currentVideo.description?.ar || ''}
@@ -353,8 +530,22 @@ export default function CourseSectionManagement() {
                                                     ...currentVideo,
                                                     description: { ...currentVideo.description, ar: e.target.value }
                                                 })}
-                                                rows={3}
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                rows={3}
+                                                required
+                                                dir="rtl"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Description (Kurdish)</label>
+                                            <textarea
+                                                value={currentVideo.description?.ckb || ''}
+                                                onChange={(e) => setCurrentVideo({
+                                                    ...currentVideo,
+                                                    description: { ...currentVideo.description, ckb: e.target.value }
+                                                })}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                rows={3}
                                                 required
                                                 dir="rtl"
                                             />
@@ -374,7 +565,13 @@ export default function CourseSectionManagement() {
                                                     hover:file:bg-blue-100"
                                                 disabled={uploading}
                                             />
-                                            {uploading && <p className="mt-2 text-sm text-gray-500">Uploading video...</p>}
+                                            {currentVideo.video_url && (
+                                                <video 
+                                                    src={currentVideo.video_url} 
+                                                    className="mt-2 max-h-40 rounded"
+                                                    controls
+                                                />
+                                            )}
                                         </div>
 
                                         <div>
