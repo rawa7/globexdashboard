@@ -45,7 +45,11 @@ export default function CourseManagement() {
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
     const [currentCourse, setCurrentCourse] = useState<Partial<Course>>({
-        title: { en: '', ar: '', ckb: '' } as MultilingualField,
+        title: {
+            en: '',
+            ar: '',
+            ckb: ''
+        },
         description: { en: '', ar: '', ckb: '' } as MultilingualField,
         learning_points: { en: [], ar: [], ckb: [] },
         price_iqd: 0,
@@ -130,14 +134,18 @@ export default function CourseManagement() {
 
     const resetForm = () => {
         setCurrentCourse({
-            title: { en: '', ar: '', ckb: '' } as MultilingualField,
+            title: {
+                en: '',
+                ar: '',
+                ckb: ''
+            },
             description: { en: '', ar: '', ckb: '' } as MultilingualField,
             learning_points: { en: [], ar: [], ckb: [] },
             price_iqd: 0,
             original_price_iqd: 0,
             order_index: 0,
             course_type: 'regular' as CourseType
-        })
+        } as Partial<Course>)
         setIsEditing(false)
         setShowForm(false)
     }
@@ -222,7 +230,11 @@ export default function CourseManagement() {
                                         value={currentCourse.title?.en || ''}
                                         onChange={(e) => setCurrentCourse({
                                             ...currentCourse,
-                                            title: { ...currentCourse.title, en: e.target.value }
+                                            title: { 
+                                                en: e.target.value,
+                                                ar: currentCourse.title?.ar || '',
+                                                ckb: currentCourse.title?.ckb || ''
+                                            }
                                         })}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         required
@@ -236,7 +248,11 @@ export default function CourseManagement() {
                                         value={currentCourse.title?.ar || ''}
                                         onChange={(e) => setCurrentCourse({
                                             ...currentCourse,
-                                            title: { ...currentCourse.title, ar: e.target.value }
+                                            title: { 
+                                                en: currentCourse.title?.en || '',
+                                                ar: e.target.value,
+                                                ckb: currentCourse.title?.ckb || ''
+                                            }
                                         })}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         required
@@ -251,7 +267,11 @@ export default function CourseManagement() {
                                         value={currentCourse.title?.ckb || ''}
                                         onChange={(e) => setCurrentCourse({
                                             ...currentCourse,
-                                            title: { ...currentCourse.title, ckb: e.target.value }
+                                            title: { 
+                                                en: currentCourse.title?.en || '',
+                                                ar: currentCourse.title?.ar || '',
+                                                ckb: e.target.value
+                                            }
                                         })}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         required
@@ -265,7 +285,11 @@ export default function CourseManagement() {
                                         value={currentCourse.description?.en || ''}
                                         onChange={(e) => setCurrentCourse({
                                             ...currentCourse,
-                                            description: { ...currentCourse.description, en: e.target.value }
+                                            description: { 
+                                                en: e.target.value,
+                                                ar: currentCourse.description?.ar || '',
+                                                ckb: currentCourse.description?.ckb || ''
+                                            }
                                         })}
                                         rows={3}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -279,7 +303,11 @@ export default function CourseManagement() {
                                         value={currentCourse.description?.ar || ''}
                                         onChange={(e) => setCurrentCourse({
                                             ...currentCourse,
-                                            description: { ...currentCourse.description, ar: e.target.value }
+                                            description: { 
+                                                en: currentCourse.description?.en || '',
+                                                ar: e.target.value,
+                                                ckb: currentCourse.description?.ckb || ''
+                                            }
                                         })}
                                         rows={3}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -294,7 +322,11 @@ export default function CourseManagement() {
                                         value={currentCourse.description?.ckb || ''}
                                         onChange={(e) => setCurrentCourse({
                                             ...currentCourse,
-                                            description: { ...currentCourse.description, ckb: e.target.value }
+                                            description: { 
+                                                en: currentCourse.description?.en || '',
+                                                ar: currentCourse.description?.ar || '',
+                                                ckb: e.target.value
+                                            }
                                         })}
                                         rows={3}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"

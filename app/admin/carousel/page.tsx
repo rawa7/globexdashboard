@@ -3,13 +3,15 @@ import { useState, useEffect } from 'react'
 import RoleGuard from '@/components/RoleGuard'
 import { supabase } from '@/lib/supabase'
 
+type MultilingualField = {
+    en: string;
+    ar: string;
+    ckb: string;
+}
+
 type CarouselItem = {
     id: string
-    title: {
-        en: string
-        ar: string
-        ckb: string
-    }
+    title: MultilingualField
     image_url: string
     link: string
     is_external: boolean
@@ -23,7 +25,7 @@ export default function CarouselManagement() {
     const [loading, setLoading] = useState(true)
     const [isEditing, setIsEditing] = useState(false)
     const [currentItem, setCurrentItem] = useState<Partial<CarouselItem>>({
-        title: { en: '', ar: '', ckb: '' },
+        title: { en: '', ar: '', ckb: '' } as MultilingualField,
         is_external: false,
         active: true,
         display_order: 0
@@ -92,7 +94,7 @@ export default function CarouselManagement() {
             await loadItems()
             setIsEditing(false)
             setCurrentItem({
-                title: { en: '', ar: '', ckb: '' },
+                title: { en: '', ar: '', ckb: '' } as MultilingualField,
                 is_external: false,
                 active: true,
                 display_order: 0
@@ -170,7 +172,7 @@ export default function CarouselManagement() {
                         onClick={() => {
                             setIsEditing(false)
                             setCurrentItem({
-                                title: { en: '', ar: '', ckb: '' },
+                                title: { en: '', ar: '', ckb: '' } as MultilingualField,
                                 is_external: false,
                                 active: true,
                                 display_order: items.length
@@ -199,7 +201,11 @@ export default function CarouselManagement() {
                                             value={currentItem.title?.en || ''}
                                             onChange={(e) => setCurrentItem({
                                                 ...currentItem,
-                                                title: { ...currentItem.title, en: e.target.value }
+                                                title: { 
+                                                    en: e.target.value,
+                                                    ar: currentItem.title?.ar || '',
+                                                    ckb: currentItem.title?.ckb || ''
+                                                }
                                             })}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                             required
@@ -212,7 +218,11 @@ export default function CarouselManagement() {
                                             value={currentItem.title?.ar || ''}
                                             onChange={(e) => setCurrentItem({
                                                 ...currentItem,
-                                                title: { ...currentItem.title, ar: e.target.value }
+                                                title: { 
+                                                    en: currentItem.title?.en || '',
+                                                    ar: e.target.value,
+                                                    ckb: currentItem.title?.ckb || ''
+                                                }
                                             })}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                             required
@@ -225,7 +235,11 @@ export default function CarouselManagement() {
                                             value={currentItem.title?.ckb || ''}
                                             onChange={(e) => setCurrentItem({
                                                 ...currentItem,
-                                                title: { ...currentItem.title, ckb: e.target.value }
+                                                title: { 
+                                                    en: currentItem.title?.en || '',
+                                                    ar: currentItem.title?.ar || '',
+                                                    ckb: e.target.value
+                                                }
                                             })}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                             required
@@ -321,7 +335,7 @@ export default function CarouselManagement() {
                                     onClick={() => {
                                         setIsEditing(false)
                                         setCurrentItem({
-                                            title: { en: '', ar: '', ckb: '' },
+                                            title: { en: '', ar: '', ckb: '' } as MultilingualField,
                                             is_external: false,
                                             active: true,
                                             display_order: 0
