@@ -29,7 +29,7 @@ export default function ArticlesPage() {
   const createMutation = useMutation({
     mutationFn: articleService.create,
     onSuccess: () => {
-      queryClient.invalidateQueries(['articles']);
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
       message.success('Article created successfully');
       handleModalClose();
     },
@@ -38,7 +38,7 @@ export default function ArticlesPage() {
   const updateMutation = useMutation({
     mutationFn: articleService.update,
     onSuccess: () => {
-      queryClient.invalidateQueries(['articles']);
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
       message.success('Article updated successfully');
       handleModalClose();
     },
@@ -47,7 +47,7 @@ export default function ArticlesPage() {
   const deleteMutation = useMutation({
     mutationFn: articleService.delete,
     onSuccess: () => {
-      queryClient.invalidateQueries(['articles']);
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
       message.success('Article deleted successfully');
     },
   });
