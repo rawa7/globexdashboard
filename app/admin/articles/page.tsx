@@ -110,7 +110,7 @@ export default function ArticlesPage() {
       title: 'Premium',
       dataIndex: 'is_premium',
       key: 'is_premium',
-      render: (isPremium) => (isPremium ? 'Yes' : 'No'),
+      render: (isPremium: boolean) => (isPremium ? 'Yes' : 'No'),
     },
     {
       title: 'Importance Rating',
@@ -121,12 +121,12 @@ export default function ArticlesPage() {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',
-      render: (date) => new Date(date).toLocaleDateString(),
+      render: (date: string) => new Date(date).toLocaleDateString(),
     },
     {
       title: 'Actions',
       key: 'actions',
-      render: (_, record) => (
+      render: (_: unknown, record: Article) => (
         <div className="flex gap-2">
           <Button
             icon={<EditOutlined />}
