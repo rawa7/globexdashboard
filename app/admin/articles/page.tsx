@@ -12,13 +12,29 @@ import {
   message,
 } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { articleService } from '@/lib/services/articleService';
+import { articleService, Article } from '@/lib/services/articleService';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
+interface ArticleFormValues {
+  title: {
+    en: string;
+    ar: string;
+    cbk: string;
+  };
+  content: {
+    en: string;
+    ar: string;
+    cbk: string;
+  };
+  thumbnail_url: string;
+  is_premium: boolean;
+  importance_rating: number;
+}
+
 export default function ArticlesPage() {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<ArticleFormValues>();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingArticle, setEditingArticle] = useState(null);
+  const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const queryClient = useQueryClient();
 
   const { data: articles, isLoading } = useQuery({
@@ -66,7 +82,7 @@ export default function ArticlesPage() {
     form.resetFields();
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values: ArticleFormValues) => {
     if (editingArticle) {
       await updateMutation.mutateAsync({ id: editingArticle.id, ...values });
     } else {
