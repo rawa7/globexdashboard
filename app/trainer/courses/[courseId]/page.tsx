@@ -26,7 +26,6 @@ type CourseVideo = {
     description: MultilingualField
     video_url?: string
     thumbnail_url?: string
-    duration_seconds: number
     order_index: number
     created_at: string
 }
@@ -49,7 +48,6 @@ export default function CourseSectionManagement() {
         title: { en: '', ar: '', ckb: '' } as MultilingualField,
         description: { en: '', ar: '', ckb: '' } as MultilingualField,
         order_index: 0,
-        duration_seconds: 0,
         video_url: '',
         thumbnail_url: ''
     })
@@ -214,7 +212,6 @@ export default function CourseSectionManagement() {
             title: { en: '', ar: '', ckb: '' } as MultilingualField,
             description: { en: '', ar: '', ckb: '' } as MultilingualField,
             order_index: videos.length,
-            duration_seconds: 0,
             video_url: '',
             thumbnail_url: ''
         })
@@ -238,7 +235,6 @@ export default function CourseSectionManagement() {
                         description: currentVideo.description,
                         video_url: currentVideo.video_url,
                         thumbnail_url: currentVideo.thumbnail_url,
-                        duration_seconds: currentVideo.duration_seconds,
                         order_index: currentVideo.order_index
                     })
                     .eq('id', currentVideo.id)
@@ -255,7 +251,6 @@ export default function CourseSectionManagement() {
                         description: currentVideo.description,
                         video_url: currentVideo.video_url,
                         thumbnail_url: currentVideo.thumbnail_url,
-                        duration_seconds: currentVideo.duration_seconds || 0,
                         order_index: currentVideo.order_index || videos.length,
                         created_at: new Date().toISOString()
                     }])
@@ -630,21 +625,6 @@ export default function CourseSectionManagement() {
                                             />
                                             {uploading && <p className="mt-2 text-sm text-gray-500">Uploading thumbnail...</p>}
                                         </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Duration (seconds)</label>
-                                            <input
-                                                type="number"
-                                                value={currentVideo.duration_seconds || 0}
-                                                onChange={(e) => setCurrentVideo({
-                                                    ...currentVideo,
-                                                    duration_seconds: parseInt(e.target.value)
-                                                })}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                                min="0"
-                                                required
-                                            />
-                                        </div>
                                     </div>
 
                                     <div className="flex justify-end space-x-3">
@@ -690,7 +670,6 @@ export default function CourseSectionManagement() {
                                         <h3 className="font-semibold text-lg mb-1">{video.title.en}</h3>
                                         <p className="text-sm text-gray-500 mb-2">{video.description.en}</p>
                                         <div className="flex justify-between items-center text-sm text-gray-500">
-                                            <span>Duration: {video.duration_seconds}s</span>
                                             <div className="space-x-2">
                                                 <button
                                                     onClick={() => {

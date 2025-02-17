@@ -349,18 +349,6 @@ export default function BrokerMediaManagement() {
                                         />
                                     </div>
                                 )}
-
-                                {currentMedia.media_type === 'video' && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Duration (seconds)</label>
-                                        <input
-                                            type="number"
-                                            value={currentMedia.duration_seconds || 0}
-                                            onChange={(e) => setCurrentMedia({...currentMedia, duration_seconds: parseInt(e.target.value)})}
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                        />
-                                    </div>
-                                )}
                             </div>
 
                             <div className="flex justify-end space-x-3">
