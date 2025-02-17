@@ -68,7 +68,7 @@ export default function ArticlesPage() {
     },
   });
 
-  const handleModalOpen = (article = null) => {
+  const handleModalOpen = (article: Article | null) => {
     setEditingArticle(article);
     if (article) {
       form.setFieldsValue(article);
@@ -151,7 +151,7 @@ export default function ArticlesPage() {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={() => handleModalOpen()}
+          onClick={() => handleModalOpen(null)}
         >
           Add Article
         </Button>
@@ -259,7 +259,7 @@ export default function ArticlesPage() {
             <Button
               type="primary"
               htmlType="submit"
-              loading={createMutation.isLoading || updateMutation.isLoading}
+              loading={createMutation.isPending || updateMutation.isPending}
             >
               {editingArticle ? 'Update' : 'Create'}
             </Button>

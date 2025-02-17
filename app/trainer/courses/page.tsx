@@ -9,7 +9,7 @@ import Link from 'next/link'
 type CourseType = 'free' | 'premium' | 'regular';
 
 // Add at the top with other type definitions
-type MultilingualField = {
+interface MultilingualField {
     en: string;
     ar: string;
     ckb: string;
@@ -222,7 +222,11 @@ export default function CourseManagement() {
                                         value={currentCourse.title?.en || ''}
                                         onChange={(e) => setCurrentCourse({
                                             ...currentCourse,
-                                            title: { ...currentCourse.title, en: e.target.value }
+                                            title: { 
+                                                en: e.target.value,
+                                                ar: currentCourse.title?.ar || '',
+                                                ckb: currentCourse.title?.ckb || ''
+                                            }
                                         })}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         required
@@ -236,7 +240,11 @@ export default function CourseManagement() {
                                         value={currentCourse.title?.ar || ''}
                                         onChange={(e) => setCurrentCourse({
                                             ...currentCourse,
-                                            title: { ...currentCourse.title, ar: e.target.value }
+                                            title: { 
+                                                en: currentCourse.title?.en || '',
+                                                ar: e.target.value,
+                                                ckb: currentCourse.title?.ckb || ''
+                                            }
                                         })}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         required
@@ -251,7 +259,11 @@ export default function CourseManagement() {
                                         value={currentCourse.title?.ckb || ''}
                                         onChange={(e) => setCurrentCourse({
                                             ...currentCourse,
-                                            title: { ...currentCourse.title, ckb: e.target.value }
+                                            title: { 
+                                                en: currentCourse.title?.en || '',
+                                                ar: currentCourse.title?.ar || '',
+                                                ckb: e.target.value
+                                            }
                                         })}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         required
@@ -265,7 +277,11 @@ export default function CourseManagement() {
                                         value={currentCourse.description?.en || ''}
                                         onChange={(e) => setCurrentCourse({
                                             ...currentCourse,
-                                            description: { ...currentCourse.description, en: e.target.value }
+                                            description: { 
+                                                en: e.target.value,
+                                                ar: currentCourse.description?.ar || '',
+                                                ckb: currentCourse.description?.ckb || ''
+                                            }
                                         })}
                                         rows={3}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -279,7 +295,11 @@ export default function CourseManagement() {
                                         value={currentCourse.description?.ar || ''}
                                         onChange={(e) => setCurrentCourse({
                                             ...currentCourse,
-                                            description: { ...currentCourse.description, ar: e.target.value }
+                                            description: { 
+                                                en: currentCourse.description?.en || '',
+                                                ar: e.target.value,
+                                                ckb: currentCourse.description?.ckb || ''
+                                            }
                                         })}
                                         rows={3}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -294,7 +314,11 @@ export default function CourseManagement() {
                                         value={currentCourse.description?.ckb || ''}
                                         onChange={(e) => setCurrentCourse({
                                             ...currentCourse,
-                                            description: { ...currentCourse.description, ckb: e.target.value }
+                                            description: { 
+                                                en: currentCourse.description?.en || '',
+                                                ar: currentCourse.description?.ar || '',
+                                                ckb: e.target.value
+                                            }
                                         })}
                                         rows={3}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"

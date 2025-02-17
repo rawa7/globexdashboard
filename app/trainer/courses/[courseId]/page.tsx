@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/AuthContext'
 import { useParams } from 'next/navigation'
 
-type MultilingualField = {
+interface MultilingualField {
     en: string;
     ar: string;
     ckb: string;
@@ -351,7 +351,11 @@ export default function CourseSectionManagement() {
                                             value={currentSection.title?.en || ''}
                                             onChange={(e) => setCurrentSection({
                                                 ...currentSection,
-                                                title: { ...currentSection.title, en: e.target.value }
+                                                title: { 
+                                                    en: e.target.value,
+                                                    ar: currentSection.title?.ar || '',
+                                                    ckb: currentSection.title?.ckb || ''
+                                                }
                                             })}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                             required
@@ -364,7 +368,11 @@ export default function CourseSectionManagement() {
                                             value={currentSection.title?.ar || ''}
                                             onChange={(e) => setCurrentSection({
                                                 ...currentSection,
-                                                title: { ...currentSection.title, ar: e.target.value }
+                                                title: { 
+                                                    en: currentSection.title?.en || '',
+                                                    ar: e.target.value,
+                                                    ckb: currentSection.title?.ckb || ''
+                                                }
                                             })}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                             required
@@ -378,7 +386,11 @@ export default function CourseSectionManagement() {
                                             value={currentSection.title?.ckb || ''}
                                             onChange={(e) => setCurrentSection({
                                                 ...currentSection,
-                                                title: { ...currentSection.title, ckb: e.target.value }
+                                                title: { 
+                                                    en: currentSection.title?.en || '',
+                                                    ar: currentSection.title?.ar || '',
+                                                    ckb: e.target.value
+                                                }
                                             })}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                             required
@@ -477,7 +489,11 @@ export default function CourseSectionManagement() {
                                                 value={currentVideo.title?.en || ''}
                                                 onChange={(e) => setCurrentVideo({
                                                     ...currentVideo,
-                                                    title: { ...currentVideo.title, en: e.target.value }
+                                                    title: { 
+                                                        en: e.target.value,
+                                                        ar: currentVideo.title?.ar || '',
+                                                        ckb: currentVideo.title?.ckb || ''
+                                                    }
                                                 })}
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                                 required
@@ -490,7 +506,11 @@ export default function CourseSectionManagement() {
                                                 value={currentVideo.title?.ar || ''}
                                                 onChange={(e) => setCurrentVideo({
                                                     ...currentVideo,
-                                                    title: { ...currentVideo.title, ar: e.target.value }
+                                                    title: { 
+                                                        en: currentVideo.title?.en || '',
+                                                        ar: e.target.value,
+                                                        ckb: currentVideo.title?.ckb || ''
+                                                    }
                                                 })}
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                                 required
@@ -504,7 +524,11 @@ export default function CourseSectionManagement() {
                                                 value={currentVideo.title?.ckb || ''}
                                                 onChange={(e) => setCurrentVideo({
                                                     ...currentVideo,
-                                                    title: { ...currentVideo.title, ckb: e.target.value }
+                                                    title: { 
+                                                        en: currentVideo.title?.en || '',
+                                                        ar: currentVideo.title?.ar || '',
+                                                        ckb: e.target.value
+                                                    }
                                                 })}
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                                 required
@@ -518,7 +542,11 @@ export default function CourseSectionManagement() {
                                                 value={currentVideo.description?.en || ''}
                                                 onChange={(e) => setCurrentVideo({
                                                     ...currentVideo,
-                                                    description: { ...currentVideo.description, en: e.target.value }
+                                                    description: { 
+                                                        en: e.target.value,
+                                                        ar: currentVideo.description?.ar || '',
+                                                        ckb: currentVideo.description?.ckb || ''
+                                                    }
                                                 })}
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                                 rows={3}
@@ -531,7 +559,11 @@ export default function CourseSectionManagement() {
                                                 value={currentVideo.description?.ar || ''}
                                                 onChange={(e) => setCurrentVideo({
                                                     ...currentVideo,
-                                                    description: { ...currentVideo.description, ar: e.target.value }
+                                                    description: { 
+                                                        en: currentVideo.description?.en || '',
+                                                        ar: e.target.value,
+                                                        ckb: currentVideo.description?.ckb || ''
+                                                    }
                                                 })}
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                                 rows={3}
@@ -545,7 +577,11 @@ export default function CourseSectionManagement() {
                                                 value={currentVideo.description?.ckb || ''}
                                                 onChange={(e) => setCurrentVideo({
                                                     ...currentVideo,
-                                                    description: { ...currentVideo.description, ckb: e.target.value }
+                                                    description: { 
+                                                        en: currentVideo.description?.en || '',
+                                                        ar: currentVideo.description?.ar || '',
+                                                        ckb: e.target.value
+                                                    }
                                                 })}
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                                 rows={3}
