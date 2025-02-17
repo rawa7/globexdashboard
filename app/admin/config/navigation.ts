@@ -9,7 +9,31 @@ export const adminNavigation = [
         href: '/admin/articles',
         icon: 'news',
     },
-    
+    {
+        name: 'brokers',
+        href: '/admin/brokers',
+        icon: 'brokers',
+    },
+    {
+        name: 'carousel',
+        href: '/admin/carousel',
+        icon: 'carousel',
+    },
+    {
+        name: 'quiz',
+        href: '/admin/quiz',
+        icon: 'quiz',
+    },
+    {
+        name: 'signals',
+        href: '/admin/signals',
+        icon: 'signal',
+    },
+    {
+        name: 'trainers',
+        href: '/admin/trainers',
+        icon: 'trainers',
+    },
     {
         name: 'Exchange Rates',
         href: '/admin/exchange-rates',
