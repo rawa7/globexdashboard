@@ -17,7 +17,7 @@ type QuizQuestion = {
     }
     correct_option: number
     points: number
-    difficulty: 'easy' | 'medium' | 'hard'
+    difficulty: 'easy' | 'medium' | 'hard' | 'intermediate'
     created_at: string
     image_url?: string
 }
@@ -36,7 +36,7 @@ export default function QuizManagement() {
         },
         correct_option: 0,
         points: 1,
-        difficulty: 'medium',
+        difficulty: 'intermediate',
         image_url: ''
     })
     const [isEditing, setIsEditing] = useState(false)
@@ -197,7 +197,7 @@ export default function QuizManagement() {
             },
             correct_option: 0,
             points: 1,
-            difficulty: 'medium',
+            difficulty: 'intermediate',
             image_url: ''
         })
         setIsEditing(false)
@@ -339,19 +339,12 @@ export default function QuizManagement() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Difficulty</label>
-                                    <select
-                                        value={currentQuestion.difficulty}
-                                        onChange={(e) => setCurrentQuestion({
-                                            ...currentQuestion,
-                                            difficulty: e.target.value as 'easy' | 'medium' | 'hard'
-                                        })}
+                                    <input
+                                        type="text"
+                                        value="intermediate"
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                        required
-                                    >
-                                        <option value="easy">Easy</option>
-                                        <option value="medium">Medium</option>
-                                        <option value="hard">Hard</option>
-                                    </select>
+                                        disabled
+                                    />
                                 </div>
                             </div>
 
