@@ -17,6 +17,8 @@ type BrokerMedia = {
     created_at: string
     is_deleted: boolean
     views_count: number
+    tempMediaPreview?: string
+    tempThumbnailPreview?: string
 }
 
 export default function BrokerMediaManagement() {
@@ -66,11 +68,8 @@ export default function BrokerMediaManagement() {
             }
 
             const file = e.target.files[0]
-            const fileExt = file.name.split('.').pop()
-            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
-            const filePath = `${user?.id}/${type}/${fileName}`
-
-            // Validate file type
+            
+            // Validate file type first
             if (type === 'media') {
                 if (!validateFileType(file, currentMedia.media_type)) {
                     throw new Error(`Invalid file type for ${currentMedia.media_type}`)
@@ -80,6 +79,26 @@ export default function BrokerMediaManagement() {
                     throw new Error('Thumbnail must be an image file')
                 }
             }
+
+            // Create and set preview
+            const previewUrl = URL.createObjectURL(file)
+            if (type === 'media') {
+                setCurrentMedia(prev => ({
+                    ...prev,
+                    tempMediaPreview: previewUrl,
+                    // For images, use the same preview for thumbnail
+                    ...(prev.media_type === 'image' && { tempThumbnailPreview: previewUrl })
+                }))
+            } else {
+                setCurrentMedia(prev => ({
+                    ...prev,
+                    tempThumbnailPreview: previewUrl
+                }))
+            }
+
+            const fileExt = file.name.split('.').pop()
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+            const filePath = `${user?.id}/${type}/${fileName}`
 
             // Upload file to Supabase Storage
             const { error: uploadError, data } = await supabase.storage
@@ -91,8 +110,7 @@ export default function BrokerMediaManagement() {
                 })
 
             if (uploadError) {
-                console.error('Upload error:', uploadError)
-                throw new Error(uploadError.message)
+                throw uploadError
             }
 
             if (!data?.path) {
@@ -104,19 +122,27 @@ export default function BrokerMediaManagement() {
                 .from('broker-media')
                 .getPublicUrl(data.path)
 
-            // Update form state
+            // Clean up the temporary preview URL
+            URL.revokeObjectURL(previewUrl)
+
+            // Update form state with the actual URL
             if (type === 'media') {
-                setCurrentMedia({
-                    ...currentMedia,
+                setCurrentMedia(prev => ({
+                    ...prev,
                     media_url: publicUrl,
                     file_size_bytes: file.size,
-                    ...(currentMedia.media_type === 'image' && { thumbnail_url: publicUrl })
-                })
+                    tempMediaPreview: undefined,
+                    ...(prev.media_type === 'image' && { 
+                        thumbnail_url: publicUrl,
+                        tempThumbnailPreview: undefined 
+                    })
+                }))
             } else {
-                setCurrentMedia({
-                    ...currentMedia,
-                    thumbnail_url: publicUrl
-                })
+                setCurrentMedia(prev => ({
+                    ...prev,
+                    thumbnail_url: publicUrl,
+                    tempThumbnailPreview: undefined
+                }))
             }
         } catch (error) {
             console.error('Error uploading file:', error)
@@ -229,6 +255,14 @@ export default function BrokerMediaManagement() {
     }
 
     const resetForm = () => {
+        // Clean up any existing preview URLs
+        if (currentMedia.tempMediaPreview) {
+            URL.revokeObjectURL(currentMedia.tempMediaPreview)
+        }
+        if (currentMedia.tempThumbnailPreview) {
+            URL.revokeObjectURL(currentMedia.tempThumbnailPreview)
+        }
+        
         setCurrentMedia({
             media_type: 'video',
             is_deleted: false,
@@ -248,6 +282,19 @@ export default function BrokerMediaManagement() {
         resetForm()
         setShowForm(true)
     }
+
+    // Add cleanup on component unmount
+    useEffect(() => {
+        return () => {
+            // Clean up any temporary preview URLs when component unmounts
+            if (currentMedia.tempMediaPreview) {
+                URL.revokeObjectURL(currentMedia.tempMediaPreview)
+            }
+            if (currentMedia.tempThumbnailPreview) {
+                URL.revokeObjectURL(currentMedia.tempThumbnailPreview)
+            }
+        }
+    }, [currentMedia.tempMediaPreview, currentMedia.tempThumbnailPreview])
 
     return (
         <RoleGuard allowedRoles={['broker']}>
@@ -331,6 +378,29 @@ export default function BrokerMediaManagement() {
                                         disabled={uploading}
                                     />
                                     {uploading && <p className="mt-2 text-sm text-gray-500">Uploading...</p>}
+                                    {(currentMedia.tempMediaPreview || currentMedia.media_url) && (
+                                        <div className="mt-2 w-32 h-32 relative">
+                                            {currentMedia.media_type === 'video' ? (
+                                                <video 
+                                                    src={currentMedia.tempMediaPreview || currentMedia.media_url}
+                                                    className="w-full h-full object-cover rounded"
+                                                    controls
+                                                />
+                                            ) : currentMedia.media_type === 'image' ? (
+                                                <img 
+                                                    src={currentMedia.tempMediaPreview || currentMedia.media_url}
+                                                    alt="Media preview"
+                                                    className="w-full h-full object-cover rounded"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded">
+                                                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                                    </svg>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {currentMedia.media_type !== 'image' && (
@@ -348,6 +418,15 @@ export default function BrokerMediaManagement() {
                                                 hover:file:bg-blue-100"
                                             disabled={uploading}
                                         />
+                                        {(currentMedia.tempThumbnailPreview || currentMedia.thumbnail_url) && (
+                                            <div className="mt-2 w-32 h-32 relative">
+                                                <img 
+                                                    src={currentMedia.tempThumbnailPreview || currentMedia.thumbnail_url}
+                                                    alt="Thumbnail preview"
+                                                    className="w-full h-full object-cover rounded"
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>

@@ -1,119 +1,141 @@
 'use client'
-import { useAuth } from '@/lib/AuthContext'
-import { useRouter } from 'next/navigation'
+import { Fragment, useState } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { adminNavigation } from './config/navigation'
+import { 
+    HomeIcon, 
+    UsersIcon, 
+    CurrencyDollarIcon,
+    Bars3Icon,  // for mobile menu button
+} from '@heroicons/react/24/outline'
+
+const iconMap = {
+    'HomeIcon': HomeIcon,
+    'UsersIcon': UsersIcon,
+    'CurrencyDollarIcon': CurrencyDollarIcon,
+}
 
 export default function AdminLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
-    const { user, userRole } = useAuth()
-    const router = useRouter()
+    const [sidebarOpen, setSidebarOpen] = useState(false)
+    const pathname = usePathname()
 
-    if (!user || userRole !== 'admin') {
-        router.push('/login')
-        return null
+    const getIcon = (iconName: string) => {
+        const Icon = iconMap[iconName as keyof typeof iconMap]
+        return Icon ? <Icon className="h-6 w-6" /> : null
     }
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            {/* Side Navigation */}
-            <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg">
-                <div className="flex flex-col h-full">
-                    <div className="flex items-center justify-center h-16 px-4 bg-gray-800 text-white">
-                        <span className="text-xl font-semibold">Admin Panel</span>
+        <div>
+            <button
+                type="button"
+                className="lg:hidden fixed top-4 left-4 z-40 rounded-md bg-white p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                onClick={() => setSidebarOpen(true)}
+            >
+                <span className="sr-only">Open sidebar</span>
+                <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+            </button>
+
+            <Transition.Root show={sidebarOpen} as={Fragment}>
+                <Dialog as="div" className="relative z-50 lg:hidden" onClose={setSidebarOpen}>
+                    <Transition.Child
+                        as={Fragment}
+                        enter="transition-opacity ease-linear duration-300"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="transition-opacity ease-linear duration-300"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                    >
+                        <div className="fixed inset-0 bg-gray-900/80" />
+                    </Transition.Child>
+
+                    <div className="fixed inset-0 flex">
+                        <Transition.Child
+                            as={Fragment}
+                            enter="transition ease-in-out duration-300 transform"
+                            enterFrom="-translate-x-full"
+                            enterTo="translate-x-0"
+                            leave="transition ease-in-out duration-300 transform"
+                            leaveFrom="translate-x-0"
+                            leaveTo="-translate-x-full"
+                        >
+                            <Dialog.Panel className="relative mr-16 flex w-full max-w-xs flex-1">
+                                <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
+                                    <nav className="flex flex-1 flex-col">
+                                        <ul role="list" className="flex flex-1 flex-col gap-y-7">
+                                            <li>
+                                                <ul role="list" className="-mx-2 space-y-1">
+                                                    {adminNavigation.map((item) => (
+                                                        <li key={item.name}>
+                                                            <Link
+                                                                href={item.href}
+                                                                className={`
+                                                                    group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6
+                                                                    ${pathname === item.href
+                                                                        ? 'bg-gray-50 text-blue-600'
+                                                                        : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                                                                    }
+                                                                `}
+                                                                onClick={() => setSidebarOpen(false)}
+                                                            >
+                                                                {getIcon(item.icon)}
+                                                                {item.name}
+                                                            </Link>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </Dialog.Panel>
+                        </Transition.Child>
                     </div>
+                </Dialog>
+            </Transition.Root>
 
-                    <nav className="flex-1 p-4">
-                        <Link
-                            href="/admin"
-                            className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                        >
-                            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                            Dashboard
-                        </Link>
-
-                        <Link
-                            href="/admin/staff"
-                            className="flex items-center px-4 py-2 mt-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                        >
-                            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                            Staff Management
-                        </Link>
-
-                        <Link
-                            href="/admin/trainers"
-                            className="flex items-center px-4 py-2 mt-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                        >
-                            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            Trainers
-                        </Link>
-
-                        <Link
-                            href="/admin/brokers"
-                            className="flex items-center px-4 py-2 mt-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                        >
-                            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            Brokers
-                        </Link>
-
-                        <Link
-                            href="/admin/carousel"
-                            className="flex items-center px-4 py-2 mt-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                        >
-                            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            Carousel
-                        </Link>
-
-                        <Link
-                            href="/admin/quiz"
-                            className="flex items-center px-4 py-2 mt-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                        >
-                            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                            </svg>
-                            Quiz Management
-                        </Link>
-
-                        <Link
-                            href="/admin/articles"
-                            className="flex items-center px-4 py-2 mt-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                        >
-                            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15M9 11l3 3m0 0l3-3m-3 3V8" />
-                            </svg>
-                            Articles
-                        </Link>
+            <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+                <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4">
+                    <nav className="flex flex-1 flex-col">
+                        <ul role="list" className="flex flex-1 flex-col gap-y-7">
+                            <li>
+                                <ul role="list" className="-mx-2 space-y-1">
+                                    {adminNavigation.map((item) => (
+                                        <li key={item.name}>
+                                            <Link
+                                                href={item.href}
+                                                className={`
+                                                    group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6
+                                                    ${pathname === item.href
+                                                        ? 'bg-gray-50 text-blue-600'
+                                                        : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                                                    }
+                                                `}
+                                            >
+                                                {getIcon(item.icon)}
+                                                {item.name}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </li>
+                        </ul>
                     </nav>
-
-                    <div className="p-4 border-t">
-                        <button
-                            onClick={() => router.push('/login')}
-                            className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                        >
-                            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
-                            Sign Out
-                        </button>
-                    </div>
                 </div>
             </div>
 
-            {/* Main Content */}
-            <div className="ml-64">
-                {children}
+            <div className="lg:pl-72">
+                <main className="py-10">
+                    <div className="px-4 sm:px-6 lg:px-8">
+                        {children}
+                    </div>
+                </main>
             </div>
         </div>
     )

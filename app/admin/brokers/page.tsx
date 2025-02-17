@@ -21,6 +21,7 @@ type Broker = {
     profile_views: number
     created_at: string
     updated_at: string
+    is_deleted: boolean
 }
 
 export default function BrokerManagement() {
@@ -147,19 +148,21 @@ export default function BrokerManagement() {
         }
     }
 
-    const handleDelete = async (id: string) => {
-        if (window.confirm('Are you sure you want to delete this broker?')) {
-            try {
-                const { error } = await supabase
-                    .from('brokers')
-                    .delete()
-                    .eq('id', id)
+    const handleToggleStatus = async (id: string, currentStatus: boolean) => {
+        try {
+            const { error } = await supabase
+                .from('brokers')
+                .update({
+                    is_deleted: !currentStatus,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', id)
 
-                if (error) throw error
-                await loadBrokers()
-            } catch (error) {
-                console.error('Error deleting broker:', error)
-            }
+            if (error) throw error
+            await loadBrokers()
+        } catch (error) {
+            console.error('Error updating broker status:', error)
+            alert('Error updating broker status. Please try again.')
         }
     }
 
@@ -408,12 +411,18 @@ export default function BrokerManagement() {
                                             >
                                                 Edit
                                             </button>
-                                            <button
-                                                onClick={() => handleDelete(broker.id)}
-                                                className="text-red-600 hover:text-red-900"
-                                            >
-                                                Delete
-                                            </button>
+                                            <div className="relative inline-block w-12 align-middle select-none">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={!broker.is_deleted}
+                                                    onChange={() => handleToggleStatus(broker.id, broker.is_deleted)}
+                                                    className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                                />
+                                                <label
+                                                    className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer
+                                                        ${!broker.is_deleted ? 'bg-green-400' : 'bg-gray-300'}`}
+                                                />
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

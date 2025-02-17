@@ -22,6 +22,7 @@ type Trainer = {
     updated_at: string
     email?: string // For form only
     password?: string // For form only
+    is_deleted: boolean
 }
 
 export default function TrainerManagement() {
@@ -57,6 +58,13 @@ export default function TrainerManagement() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        
+        // Add validation for image_url
+        if (!currentTrainer.image_url) {
+            alert('Please upload a profile photo')
+            return
+        }
+
         try {
             if (isEditing && currentTrainer.id) {
                 // Update existing trainer
@@ -131,19 +139,18 @@ export default function TrainerManagement() {
         }
     }
 
-    const handleDelete = async (id: string) => {
-        if (window.confirm('Are you sure you want to delete this trainer?')) {
-            try {
-                const { error } = await supabase
-                    .from('trainers')
-                    .delete()
-                    .eq('id', id)
+    const handleToggleStatus = async (trainer: Trainer) => {
+        try {
+            const { error } = await supabase
+                .from('trainers')
+                .update({ is_deleted: !trainer.is_deleted })
+                .eq('id', trainer.id)
 
-                if (error) throw error
-                await loadTrainers()
-            } catch (error) {
-                console.error('Error deleting trainer:', error)
-            }
+            if (error) throw error
+            await loadTrainers()
+        } catch (error) {
+            console.error('Error updating trainer status:', error)
+            alert('Error updating trainer status. Please try again.')
         }
     }
 
@@ -167,6 +174,37 @@ export default function TrainerManagement() {
         setIsEditing(false)
     }
 
+    // Add this new function for image upload
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        try {
+            // Create a unique file name
+            const fileExt = file.name.split('.').pop()
+            const fileName = `${Math.random()}.${fileExt}`
+            const filePath = `trainer-photos/${fileName}`
+
+            // Upload the file to Supabase storage
+            const { error: uploadError } = await supabase.storage
+                .from('trainers')
+                .upload(filePath, file)
+
+            if (uploadError) throw uploadError
+
+            // Get the public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('trainers')
+                .getPublicUrl(filePath)
+
+            // Update the trainer state with the new image URL
+            setCurrentTrainer({ ...currentTrainer, image_url: publicUrl })
+        } catch (error) {
+            console.error('Error uploading image:', error)
+            alert('Error uploading image. Please try again.')
+        }
+    }
+
     return (
         <RoleGuard allowedRoles={['admin']}>
             <div className="max-w-7xl mx-auto px-4 py-6">
@@ -188,6 +226,25 @@ export default function TrainerManagement() {
                         </h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700">Profile Photo</label>
+                                    <div className="mt-1 flex items-center space-x-4">
+                                        {currentTrainer.image_url && (
+                                            <img
+                                                src={currentTrainer.image_url}
+                                                alt="Profile preview"
+                                                className="h-20 w-20 rounded-full object-cover"
+                                            />
+                                        )}
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageUpload}
+                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                            required={!currentTrainer.image_url}
+                                        />
+                                    </div>
+                                </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Name</label>
                                     <input
@@ -385,12 +442,17 @@ export default function TrainerManagement() {
                                             >
                                                 Edit
                                             </button>
-                                            <button
-                                                onClick={() => handleDelete(trainer.id)}
-                                                className="text-red-600 hover:text-red-900"
-                                            >
-                                                Delete
-                                            </button>
+                                            <div className="relative inline-block w-12 align-middle select-none">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={!trainer.is_deleted}
+                                                    onChange={() => handleToggleStatus(trainer)}
+                                                    className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-2 appearance-none cursor-pointer"
+                                                />
+                                                <label
+                                                    className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer`}
+                                                />
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -399,6 +461,27 @@ export default function TrainerManagement() {
                     </div>
                 )}
             </div>
+            <style jsx>{`
+                .toggle-checkbox {
+                    left: 0;
+                    z-index: 1;
+                    border-color: #888;
+                    transition: all 0.3s;
+                }
+                .toggle-checkbox:checked {
+                    left: auto;
+                    right: 0;
+                    border-color: #fff;
+                }
+                .toggle-label {
+                    width: 3rem;
+                    background-color: #ef4444;
+                    transition: all 0.3s;
+                }
+                .toggle-checkbox:checked + .toggle-label {
+                    background-color: #22c55e;
+                }
+            `}</style>
         </RoleGuard>
     )
 } 
