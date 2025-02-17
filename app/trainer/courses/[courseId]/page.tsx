@@ -250,6 +250,7 @@ export default function CourseSectionManagement() {
                     .from('course_videos')
                     .insert([{
                         section_id: selectedSectionId,
+                        course_id: courseId,
                         title: currentVideo.title,
                         description: currentVideo.description,
                         video_url: currentVideo.video_url,
