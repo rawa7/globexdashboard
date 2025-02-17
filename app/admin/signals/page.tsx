@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 
 type Signal = {
     id: string
-    type: 'buy' | 'sell'
+    type: 'BUY' | 'SELL'
     pair: string
     entry_price: number
     stop_loss: number
@@ -15,15 +15,15 @@ type Signal = {
         ar: string
         ckb: string
     }
-    status: 'active' | 'closed' | 'cancelled'
+    status: 'active' | 'closed'
     is_premium: boolean
     created_at: string
     updated_at: string
 }
 
 // Type definitions for select values
-type SignalType = 'buy' | 'sell'
-type SignalStatus = 'active' | 'closed' | 'cancelled'
+type SignalType = 'BUY' | 'SELL'
+type SignalStatus = 'active' | 'closed'
 
 export default function SignalManagement() {
     const [signals, setSignals] = useState<Signal[]>([])
@@ -150,8 +150,8 @@ export default function SignalManagement() {
                                         required
                                     >
                                         <option value="">Select Type</option>
-                                        <option value="buy">Buy</option>
-                                        <option value="sell">Sell</option>
+                                        <option value="BUY">BUY</option>
+                                        <option value="SELL">SELL</option>
                                     </select>
                                 </div>
 
@@ -215,7 +215,6 @@ export default function SignalManagement() {
                                     >
                                         <option value="active">Active</option>
                                         <option value="closed">Closed</option>
-                                        <option value="cancelled">Cancelled</option>
                                     </select>
                                 </div>
 
@@ -356,16 +355,14 @@ export default function SignalManagement() {
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                                 signal.status === 'active' 
                                                     ? 'bg-green-100 text-green-800'
-                                                    : signal.status === 'closed'
-                                                    ? 'bg-blue-100 text-blue-800'
-                                                    : 'bg-red-100 text-red-800'
+                                                    : 'bg-blue-100 text-blue-800'
                                             }`}>
                                                 {signal.status}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                                signal.type === 'buy'
+                                                signal.type === 'BUY'
                                                     ? 'bg-green-100 text-green-800'
                                                     : 'bg-red-100 text-red-800'
                                             }`}>
