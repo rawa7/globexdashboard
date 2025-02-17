@@ -109,7 +109,8 @@ export default function BrokerMediaManagement() {
                 setCurrentMedia({
                     ...currentMedia,
                     media_url: publicUrl,
-                    file_size_bytes: file.size
+                    file_size_bytes: file.size,
+                    ...(currentMedia.media_type === 'image' && { thumbnail_url: publicUrl })
                 })
             } else {
                 setCurrentMedia({
