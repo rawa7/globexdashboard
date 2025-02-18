@@ -9,6 +9,11 @@ interface Title {
     ckb: string;
 }
 
+interface LinkedItem {
+    id: string;
+    name: string;  // or title, depending on your data structure
+}
+
 type CarouselItem = {
     id: string
     title: Title
@@ -31,6 +36,8 @@ export default function CarouselManagement() {
         display_order: 0
     })
     const [uploading, setUploading] = useState(false)
+    const [linkType, setLinkType] = useState<'trainer' | 'broker' | 'course' | ''>('')
+    const [linkedItems, setLinkedItems] = useState<LinkedItem[]>([])
 
     useEffect(() => {
         loadItems()
@@ -49,6 +56,32 @@ export default function CarouselManagement() {
             console.error('Error loading carousel items:', error)
         } finally {
             setLoading(false)
+        }
+    }
+
+    const loadLinkedItems = async (type: string) => {
+        try {
+            const { data, error } = await supabase
+                .from(type + 's')  // assumes tables are named: trainers, brokers, courses
+                .select(type === 'course' ? 'id, title' : 'id, name')  // Let's get the full title object for courses
+                .eq('is_deleted', false)
+
+            if (error) throw error
+            
+            // Transform the data for courses
+            if (type === 'course') {
+                console.log('Raw course data:', data); // Debug log
+                const transformedData = data.map(item => ({
+                    id: item.id,
+                    name: item.title?.en || 'No title' // Add fallback text
+                }));
+                setLinkedItems(transformedData);
+            } else {
+                setLinkedItems(data || []);
+            }
+        } catch (error) {
+            console.error(`Error loading ${type} items:`, error)
+            setLinkedItems([])
         }
     }
 
@@ -286,13 +319,53 @@ export default function CarouselManagement() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Link</label>
-                                    <input
-                                        type="text"
-                                        value={currentItem.link || ''}
-                                        onChange={(e) => setCurrentItem({...currentItem, link: e.target.value})}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                        required
-                                    />
+                                    {currentItem.is_external ? (
+                                        <input
+                                            type="text"
+                                            value={currentItem.link || ''}
+                                            onChange={(e) => setCurrentItem({...currentItem, link: e.target.value})}
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                            placeholder="Enter external URL"
+                                            required
+                                        />
+                                    ) : (
+                                        <div className="space-y-2">
+                                            <select
+                                                value={linkType}
+                                                onChange={(e) => {
+                                                    setLinkType(e.target.value as any);
+                                                    loadLinkedItems(e.target.value);
+                                                    setCurrentItem({...currentItem, link: ''});
+                                                }}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                required
+                                            >
+                                                <option value="">Select Type</option>
+                                                <option value="trainer">Trainer</option>
+                                                <option value="broker">Broker</option>
+                                                <option value="course">Course</option>
+                                            </select>
+
+                                            {linkType && (
+                                                <select
+                                                    value={currentItem.link?.split('/').pop() || ''}
+                                                    onChange={(e) => setCurrentItem({
+                                                        ...currentItem,
+                                                        link: `forexsa://${linkType}/${e.target.value}`
+                                                    })}
+                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                    required
+                                                >
+                                                    <option value="">Select {linkType}</option>
+                                                    {linkedItems.map((item) => (
+                                                        <option key={item.id} value={item.id}>
+                                                            {item.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div>
