@@ -49,9 +49,7 @@ export default function Navigation() {
               </Link>
               {userRole === 'admin' && (
                 <>
-                  <Link href="/admin" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
-                    Dashboard
-                  </Link>
+                 
                   <Link href="/admin/trainers" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
                     Trainers
                   </Link>
@@ -68,19 +66,18 @@ export default function Navigation() {
               )}
               {userRole === 'broker' && (
                 <>
-                  <Link href="/broker" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
-                    Dashboard
-                  </Link>
+                 
                   <Link href="/broker/media" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
                     Media
+                  </Link>
+                  <Link href="/broker/profile" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
+                    Profile
                   </Link>
                 </>
               )}
               {userRole === 'trainer' && (
                 <>
-                  <Link href="/trainer" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
-                    Dashboard
-                  </Link>
+                
                   <Link href="/trainer/courses" className="inline-flex items-center px-3 py-2 text-gray-900 hover:text-gray-600">
                     Courses
                   </Link>
