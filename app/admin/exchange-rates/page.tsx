@@ -30,6 +30,7 @@ export default function ExchangeRatesManagement() {
     const [showForm, setShowForm] = useState(false)
     const [currentRate, setCurrentRate] = useState<Partial<CityExchangeRate>>({})
     const [isEditing, setIsEditing] = useState(false)
+    const [selectedCity, setSelectedCity] = useState<IraqiCity | 'all'>('all')
 
     useEffect(() => {
         loadRates()
@@ -129,6 +130,10 @@ export default function ExchangeRatesManagement() {
         return new Date(dateString).toLocaleString()
     }
 
+    const filteredRates = selectedCity === 'all' 
+        ? rates 
+        : rates.filter(rate => rate.city_name === selectedCity)
+
     return (
         <RoleGuard allowedRoles={['admin']}>
             <div className="max-w-7xl mx-auto px-4 py-6">
@@ -141,6 +146,34 @@ export default function ExchangeRatesManagement() {
                     >
                         Add New Rate
                     </button>
+                </div>
+
+                {/* City Filter Buttons */}
+                <div className="mb-6">
+                    <div className="text-sm font-medium text-gray-700 mb-2">Filter by City:</div>
+                    <div className="flex flex-wrap gap-2">
+                        <button
+                            onClick={() => setSelectedCity('all')}
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
+                                ${selectedCity === 'all' 
+                                    ? 'bg-blue-500 text-white' 
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                        >
+                            All Cities
+                        </button>
+                        {IRAQI_CITIES.map((city) => (
+                            <button
+                                key={city}
+                                onClick={() => setSelectedCity(city)}
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
+                                    ${selectedCity === city 
+                                        ? 'bg-blue-500 text-white' 
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                            >
+                                {city}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Form */}
@@ -212,9 +245,11 @@ export default function ExchangeRatesManagement() {
                 {/* Rates List */}
                 {loading ? (
                     <div className="text-center py-4">Loading...</div>
-                ) : rates.length === 0 ? (
+                ) : filteredRates.length === 0 ? (
                     <div className="text-center py-4 text-gray-500">
-                        No exchange rates found. Click Add New Rate to get started.
+                        {selectedCity === 'all' 
+                            ? 'No exchange rates found. Click Add New Rate to get started.'
+                            : `No exchange rates found for ${selectedCity}.`}
                     </div>
                 ) : (
                     <div className="bg-white shadow rounded-lg overflow-hidden">
@@ -239,7 +274,7 @@ export default function ExchangeRatesManagement() {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {rates.map((rate) => (
+                                {filteredRates.map((rate) => (
                                     <tr key={rate.id}>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {rate.city_name}

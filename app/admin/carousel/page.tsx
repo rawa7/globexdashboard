@@ -14,6 +14,15 @@ interface LinkedItem {
     name: string;  // or title, depending on your data structure
 }
 
+interface CourseItem {
+    id: string;
+    title: {
+        en: string;
+        ar: string;
+        ckb: string;
+    };
+}
+
 type CarouselItem = {
     id: string
     title: Title
@@ -69,9 +78,9 @@ export default function CarouselManagement() {
             if (error) throw error
             
             if (type === 'course') {
-                const transformedData: LinkedItem[] = data.map(item => ({
+                const transformedData: LinkedItem[] = data.map((item: CourseItem) => ({
                     id: item.id,
-                    name: (item as any).title?.en || 'No title'
+                    name: item.title?.en || 'No title'
                 }));
                 setLinkedItems(transformedData);
             } else {
