@@ -1,7 +1,6 @@
 'use client'
 import { useAuth } from '@/lib/AuthContext'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
 export default function BrokerLayout({
     children,
@@ -12,7 +11,7 @@ export default function BrokerLayout({
     const router = useRouter()
 
     if (!user || userRole !== 'broker') {
-        router.push('/login')
+        router.replace('/login')
         return null
     }
 

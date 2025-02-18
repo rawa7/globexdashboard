@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 
@@ -7,10 +7,39 @@ export default function Login() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState<string | null>(null)
+    const [loading, setLoading] = useState(true)
     const router = useRouter()
+
+    useEffect(() => {
+        // Check if user is already authenticated
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession()
+            if (session?.user) {
+                // Get role from user metadata and redirect accordingly
+                const role = session.user.user_metadata.role
+                switch (role) {
+                    case 'admin':
+                        router.replace('/admin')
+                        break
+                    case 'trainer':
+                        router.replace('/trainer')
+                        break
+                    case 'broker':
+                        router.replace('/broker')
+                        break
+                    default:
+                        router.replace('/')
+                }
+            }
+            setLoading(false)
+        }
+        
+        checkUser()
+    }, [router])
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
+        setError(null)
         try {
             const { data, error } = await supabase.auth.signInWithPassword({
                 email,
@@ -26,21 +55,29 @@ export default function Login() {
             const role = data.user?.user_metadata.role
             switch (role) {
                 case 'admin':
-                    router.push('/admin')
+                    router.replace('/admin')
                     break
                 case 'trainer':
-                    router.push('/trainer')
+                    router.replace('/trainer')
                     break
                 case 'broker':
-                    router.push('/broker')
+                    router.replace('/broker')
                     break
                 default:
-                    router.push('/')
+                    router.replace('/')
             }
         } catch (error) {
             console.error('Error:', error)
             setError('An error occurred during login')
         }
+    }
+
+    if (loading) {
+        return (
+            <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+                <p>Loading...</p>
+            </div>
+        )
     }
 
     return (
