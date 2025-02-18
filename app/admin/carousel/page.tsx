@@ -14,8 +14,16 @@ interface LinkedItem {
     name: string;  // or title, depending on your data structure
 }
 
-interface CourseItem {
+interface BaseItem {
     id: string;
+    is_deleted: boolean;
+}
+
+interface TrainerBrokerItem extends BaseItem {
+    name: string;
+}
+
+interface CourseItem extends BaseItem {
     title: {
         en: string;
         ar: string;
@@ -78,13 +86,18 @@ export default function CarouselManagement() {
             if (error) throw error
             
             if (type === 'course') {
-                const transformedData: LinkedItem[] = data.map((item: CourseItem) => ({
+                const courseData = data as CourseItem[];
+                const transformedData: LinkedItem[] = courseData.map(item => ({
                     id: item.id,
                     name: item.title?.en || 'No title'
                 }));
                 setLinkedItems(transformedData);
             } else {
-                setLinkedItems(data as LinkedItem[]);
+                const itemData = data as TrainerBrokerItem[];
+                setLinkedItems(itemData.map(item => ({
+                    id: item.id,
+                    name: item.name
+                })));
             }
         } catch (error) {
             console.error(`Error loading ${type} items:`, error)
