@@ -62,22 +62,20 @@ export default function CarouselManagement() {
     const loadLinkedItems = async (type: string) => {
         try {
             const { data, error } = await supabase
-                .from(type + 's')  // assumes tables are named: trainers, brokers, courses
-                .select(type === 'course' ? 'id, title' : 'id, name')  // Let's get the full title object for courses
+                .from(type + 's')
+                .select(type === 'course' ? 'id, title' : 'id, name')
                 .eq('is_deleted', false)
 
             if (error) throw error
             
-            // Transform the data for courses
             if (type === 'course') {
-                console.log('Raw course data:', data); // Debug log
-                const transformedData = data.map(item => ({
+                const transformedData: LinkedItem[] = data.map(item => ({
                     id: item.id,
-                    name: item.title?.en || 'No title' // Add fallback text
+                    name: (item as any).title?.en || 'No title'
                 }));
                 setLinkedItems(transformedData);
             } else {
-                setLinkedItems(data || []);
+                setLinkedItems(data as LinkedItem[]);
             }
         } catch (error) {
             console.error(`Error loading ${type} items:`, error)
