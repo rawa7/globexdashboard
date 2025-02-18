@@ -42,6 +42,8 @@ type CarouselItem = {
     created_at: string
 }
 
+type LinkType = 'trainer' | 'broker' | 'course';
+
 export default function CarouselManagement() {
     const [items, setItems] = useState<CarouselItem[]>([])
     const [loading, setLoading] = useState(true)
@@ -53,7 +55,7 @@ export default function CarouselManagement() {
         display_order: 0
     })
     const [uploading, setUploading] = useState(false)
-    const [linkType, setLinkType] = useState<'trainer' | 'broker' | 'course' | ''>('')
+    const [linkType, setLinkType] = useState<LinkType | ''>('')
     const [linkedItems, setLinkedItems] = useState<LinkedItem[]>([])
 
     useEffect(() => {
@@ -76,7 +78,7 @@ export default function CarouselManagement() {
         }
     }
 
-    const loadLinkedItems = async (type: string) => {
+    const loadLinkedItems = async (type: LinkType) => {
         try {
             const { data, error } = await supabase
                 .from(type + 's')
@@ -99,7 +101,7 @@ export default function CarouselManagement() {
                     name: item.name
                 })));
             }
-        } catch (error) {
+        } catch (error: unknown) {
             console.error(`Error loading ${type} items:`, error)
             setLinkedItems([])
         }
@@ -353,8 +355,8 @@ export default function CarouselManagement() {
                                             <select
                                                 value={linkType}
                                                 onChange={(e) => {
-                                                    setLinkType(e.target.value as any);
-                                                    loadLinkedItems(e.target.value);
+                                                    setLinkType(e.target.value as LinkType);
+                                                    loadLinkedItems(e.target.value as LinkType);
                                                     setCurrentItem({...currentItem, link: ''});
                                                 }}
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
